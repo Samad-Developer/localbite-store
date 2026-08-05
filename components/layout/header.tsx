@@ -3,11 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { Phone } from "lucide-react";
 import { CartWidget } from "@/components/cart/cart-widget";
-import type { Restaurant } from "@/types/api";
+import type { Restaurant, DeliveryArea } from "@/types/api";
 
-export function Header({ restaurant }: { restaurant: Restaurant }) {
+interface HeaderProps {
+  restaurant: Restaurant;
+  deliveryAreas: DeliveryArea[];
+}
+
+export function Header({ restaurant, deliveryAreas }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white/95 backdrop-blur">
+    <header className="border-b border-neutral-200 bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:grid md:grid-cols-3">
         <div className="hidden md:flex">
           <a
@@ -35,15 +40,15 @@ export function Header({ restaurant }: { restaurant: Restaurant }) {
 
         <div className="flex items-center justify-end gap-3">
           <a
-           href={`tel:${restaurant.phone}`}
+            href={`tel:${restaurant.phone}`}
             aria-label="Call restaurant"
             className="text-neutral-600 hover:text-orange-600 md:hidden"
-            >
+          >
             <Phone className="h-5 w-5" />
 
           </a>
-           
-          <CartWidget />
+
+          <CartWidget restaurant={restaurant} deliveryAreas={deliveryAreas} />
         </div>
       </div>
     </header>

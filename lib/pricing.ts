@@ -1,5 +1,5 @@
-// lib/pricing.ts
 import type { Variant, AddonGroup } from "@/types/api";
+import type { DeliveryArea, OrderType } from "@/types/api";
 
 /**
  * Flattens the selected-addons map into actual Addon objects with prices,
@@ -88,4 +88,32 @@ export function toggleAddonSelection(
   }
 
   return [...currentSelection, addonId];
+}
+
+export function isSimpleItem(item: { variants: { addonGroups: unknown[] }[] }): boolean {
+  if (item.variants.length > 1) return false;
+  const onlyVariant = item.variants[0];
+  return !onlyVariant || onlyVariant.addonGroups.length === 0;
+}
+
+export function getDeliveryFee(
+  orderType: OrderType | null,
+  deliveryAreaId: string | null,
+  deliveryAreas: DeliveryArea[],
+  fallbackFee: number
+): number {
+  if (orderType !== "DELIVERY") return 0;
+  const area = deliveryAreas.find((a) => a.id === deliveryAreaId);
+  return area ? area.deliveryFee : fallbackFee;
+}
+
+export function getMinimumOrder(
+  orderType: OrderType | null,
+  deliveryAreaId: string | null,
+  deliveryAreas: DeliveryArea[],
+  fallbackMinimum: number
+): number {
+  if (orderType !== "DELIVERY") return 0;
+  const area = deliveryAreas.find((a) => a.id === deliveryAreaId);
+  return area ? area.minimumOrder : fallbackMinimum;
 }

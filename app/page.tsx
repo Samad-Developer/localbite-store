@@ -14,11 +14,11 @@ export default async function HomePage() {
 
   return (
     <>
-    <div className="px-2 py-2 md:p-6">
-      <Banner
-        images={restaurant.coverImages}
-        restaurantName={restaurant.name}
-      />
+      <div className="px-2 py-2 md:p-6">
+        <Banner
+          images={restaurant.coverImages}
+          restaurantName={restaurant.name}
+        />
       </div>
 
       {!isOpen && (
@@ -27,11 +27,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      <div className="max-w-6xl mx-auto px-4 py-4">
-        <MenuBrowser categories={menu.categories} />
-      </div>
-
-      <Footer restaurant={restaurant} />
+      <MenuBrowser categories={menu.categories} />
     </>
   );
 }

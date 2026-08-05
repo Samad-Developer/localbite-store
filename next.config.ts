@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
         hostname: "**", // TODO: narrow this once you confirm your image host
       },
     ],
+        qualities: [75, 90], // add this line
+
   },
 };
 

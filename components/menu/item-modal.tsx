@@ -48,14 +48,11 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
   const [quantity, setQuantity] = useState(1);
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [showValidation, setShowValidation] = useState(false);
-
-  // Guard against null item or variant
-  if (!item || !selectedVariant) return null;
-
+  const [lastItemId, setLastItemId] = useState<string | null>(null);
+  
   // Reset all local state whenever a DIFFERENT item is opened.
   // Without this, closing item A and opening item B would keep item A's
   // selected addons/quantity lingering in state — a real bug, not a style choice.
-  const [lastItemId, setLastItemId] = useState<string | null>(null);
   if (item && item.id !== lastItemId) {
     setLastItemId(item.id);
     setSelectedVariant(item.variants.find((v) => v.isDefault) ?? item.variants[0] ?? null);
@@ -65,6 +62,8 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
     setShowValidation(false);
   }
 
+   // Guard against null item or variant
+  if (!item || !selectedVariant) return null;
 
   // Derived values ( filters and calculations )
   const unsatisfiedGroups = getUnsatisfiedRequiredGroups(selectedVariant.addonGroups, selectedAddons);
@@ -112,10 +111,10 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        showCloseButton={false}
-        className="flex max-h-[90vh] flex-col rounded-2xl p-0 sm:mx-auto sm:max-w-xl"
-      >
+<DialogContent
+  showCloseButton={false}
+  className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl p-0 sm:mx-auto sm:max-w-xl"
+>
         <div className="">
           {item.images[0] && (
             <div className="relative aspect-video w-full">
@@ -136,7 +135,7 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
           )}
         </div>
 
-        <div className="flex flex-1 flex-col overflow-y-auto">
+        <div className="custom-scroll flex flex-1 flex-col overflow-y-auto">
           <div className="space-y-5 p-4">
             <DialogHeader className="p-0 text-left">
               <DialogTitle>{item.name}</DialogTitle>
