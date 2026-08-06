@@ -51,25 +51,25 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
   return (
     <div>
       {/* Sticky category tabs — full-bleed bar, but inner content aligned to the same container width as everything else */}
-{!isSearching && (
-  <div className="sticky top-0 z-40 w-full border-b border-orange-100 bg-orange-50/90 backdrop-blur-sm shadow-sm">
-    <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
-      {categories.map((cat) => (
-        <button
-          key={cat.id}
-          onClick={() => scrollToCategory(cat.id)}
-          className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-150 ${
-            activeCategoryId === cat.id
-              ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
-              : "bg-white text-neutral-600 hover:bg-orange-100 hover:text-orange-700"
-          }`}
-        >
-          {cat.name}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
+      {!isSearching && (
+        <div className="sticky top-0 z-40 w-full border-b border-orange-100 bg-orange-50/90 backdrop-blur-sm shadow-sm">
+          <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => scrollToCategory(cat.id)}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-150 ${
+                  activeCategoryId === cat.id
+                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
+                    : "bg-white text-neutral-600 hover:bg-orange-100 hover:text-orange-700"
+                }`}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Everything below shares one consistent centered container */}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">

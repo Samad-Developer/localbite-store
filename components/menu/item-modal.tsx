@@ -49,7 +49,7 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
   const [specialInstructions, setSpecialInstructions] = useState("");
   const [showValidation, setShowValidation] = useState(false);
   const [lastItemId, setLastItemId] = useState<string | null>(null);
-  
+
   // Reset all local state whenever a DIFFERENT item is opened.
   // Without this, closing item A and opening item B would keep item A's
   // selected addons/quantity lingering in state — a real bug, not a style choice.
@@ -62,7 +62,7 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
     setShowValidation(false);
   }
 
-   // Guard against null item or variant
+  // Guard against null item or variant
   if (!item || !selectedVariant) return null;
 
   // Derived values ( filters and calculations )
@@ -111,10 +111,10 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-<DialogContent
-  showCloseButton={false}
-  className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl p-0 sm:mx-auto sm:max-w-xl"
->
+      <DialogContent
+        showCloseButton={false}
+        className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl p-0 sm:mx-auto sm:max-w-xl"
+      >
         <div className="">
           {item.images[0] && (
             <div className="relative aspect-video w-full">

@@ -1,7 +1,7 @@
 // components/menu/addon-group.tsx
 import type { AddonGroup as AddonGroupType } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
-import { Asterisk } from "lucide-react";
+import { Asterisk, Check } from "lucide-react";
 
 interface AddonGroupProps {
   group: AddonGroupType;
@@ -31,7 +31,11 @@ export function AddonGroup({ group, selectedIds, isUnsatisfied, onToggle }: Addo
           return (
             <label
               key={addon.id}
-              className="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-200 px-3 py-2 hover:bg-neutral-50"
+              className={`flex cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 transition-colors ${
+                isChecked
+                  ? "border-orange-500 bg-orange-50"
+                  : "border-neutral-200 hover:border-neutral-300"
+              }`}
             >
               <div className="flex items-center gap-3">
                 <input
@@ -39,12 +43,28 @@ export function AddonGroup({ group, selectedIds, isUnsatisfied, onToggle }: Addo
                   checked={isChecked}
                   onChange={() => onToggle(addon.id)}
                   name={group.id}
-                  className="h-4 w-4 accent-orange-500"
+                  className="sr-only"
                 />
-                <span className="text-sm text-neutral-700">{addon.name}</span>
+                <span
+                  className={`flex h-5 w-5 shrink-0 items-center justify-center border-2 transition-colors ${
+                    group.isMultiple ? "rounded-md" : "rounded-full"
+                  } ${isChecked ? "border-orange-500 bg-orange-500" : "border-neutral-300 bg-white"}`}
+                >
+                  {isChecked &&
+                    (group.isMultiple ? (
+                      <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-white" />
+                    ))}
+                </span>
+                <span className={`text-sm ${isChecked ? "font-medium text-neutral-900" : "text-neutral-700"}`}>
+                  {addon.name}
+                </span>
               </div>
               {addon.price > 0 && (
-                <span className="text-sm text-neutral-500">+{formatPrice(addon.price)}</span>
+                <span className={`text-sm ${isChecked ? "font-medium text-orange-600" : "text-neutral-500"}`}>
+                  +{formatPrice(addon.price)}
+                </span>
               )}
             </label>
           );

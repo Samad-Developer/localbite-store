@@ -115,6 +115,8 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
 
       <div className="flex flex-1 flex-col gap-1 p-3">
         <p className="text-sm font-medium leading-tight text-neutral-900">{item.name}</p>
+        {/* add item description also */}
+        <p className="text-xs text-neutral-500">{item.description}</p>
         {spicyCount > 0 && (
           <div className="flex gap-0.5">
             {Array.from({ length: spicyCount }).map((_, i) => (

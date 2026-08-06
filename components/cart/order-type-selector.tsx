@@ -3,7 +3,7 @@
 
 import type { DeliveryArea, OrderType, Restaurant } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
-
+import { UtensilsCrossed, ShoppingBag, Bike, LucideIcon } from "lucide-react";
 interface OrderTypeSelectorProps {
   restaurant: Restaurant;
   deliveryAreas: DeliveryArea[];
@@ -17,6 +17,12 @@ const LABELS: Record<OrderType, string> = {
   DINE_IN: "Dine-in",
   TAKEAWAY: "Takeaway",
   DELIVERY: "Delivery",
+};
+
+const ICONS: Record<OrderType, LucideIcon> = {
+  DINE_IN: UtensilsCrossed,
+  TAKEAWAY: ShoppingBag,
+  DELIVERY: Bike,
 };
 
 export function OrderTypeSelector({
@@ -40,19 +46,23 @@ export function OrderTypeSelector({
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
-        {available.map((type) => (
-          <button
-            key={type}
-            onClick={() => onOrderTypeChange(type)}
-            className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${
-              orderType === type
-                ? "border-orange-500 bg-orange-50 text-orange-600"
-                : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
-            }`}
-          >
-            {LABELS[type]}
-          </button>
-        ))}
+        {available.map((type) => {
+          const Icon = ICONS[type];
+          return (
+            <button
+              key={type}
+              onClick={() => onOrderTypeChange(type)}
+              className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                orderType === type
+                  ? "border-orange-500 bg-orange-50 text-orange-600"
+                  : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
+              }`}
+            >
+              <Icon className="mx-auto mb-1 h-5 w-5" />
+              {LABELS[type]}
+            </button>
+          );
+        })}
       </div>
 
       {orderType === "DELIVERY" && (
