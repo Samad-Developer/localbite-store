@@ -117,3 +117,14 @@ export function getMinimumOrder(
   const area = deliveryAreas.find((a) => a.id === deliveryAreaId);
   return area ? area.minimumOrder : fallbackMinimum;
 }
+
+// lib/pricing.ts — add this function
+import type { Restaurant, PaymentMethod } from "@/types/api";
+
+export function getAvailablePaymentMethods(restaurant: Restaurant): PaymentMethod[] {
+  return [
+    ...(restaurant.acceptsCash ? (["CASH"] as const) : []),
+    ...(restaurant.acceptsCard ? (["CARD"] as const) : []),
+    ...(restaurant.acceptsOnline ? (["ONLINE"] as const) : []),
+  ];
+}

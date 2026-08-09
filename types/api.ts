@@ -109,7 +109,8 @@ export interface MenuResponse {
 
 export type OrderType = "DINE_IN" | "TAKEAWAY" | "DELIVERY";
 export type PaymentMethod = "CASH" | "CARD" | "ONLINE";
-export type OrderStatus = "NEW" | "CONFIRMED" | "PREPARING" | "READY" | "COMPLETED";
+export type OrderStatus = "NEW" | "CONFIRMED" | "PREPARING" | "READY" | "COMPLETED" | "CANCELLED";
+export type PaymentStatus = "PENDING" | "PAID" | "REFUNDED";
 
 export interface OrderAddonPayload {
   addonId: string;
