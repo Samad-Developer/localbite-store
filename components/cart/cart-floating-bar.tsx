@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ShoppingBag, ChevronUp } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { useCartStore, useCartSubtotal, useCartTotalItems } from "@/store/cart-store";
 import { formatPrice } from "@/lib/utils";
 
@@ -26,16 +26,16 @@ export function CartFloatingBar() {
   return (
     <button
       onClick={openCart}
-      className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center justify-between gap-3 rounded-full bg-orange-500 px-5 py-3.5 text-white shadow-lg shadow-orange-500/30 transition-transform hover:scale-[1.02] active:scale-[0.98] sm:inset-x-auto sm:right-6"
+      className="fixed inset-x-4 bottom-4 z-40 mx-auto grid max-w-xs grid-cols-3 items-center gap-2 rounded-2xl bg-orange-500 px-4 py-3.5 text-white shadow-xltransition-transform hover:scale-[1.02] active:scale-[0.98]"
     >
-      <span className="flex items-center gap-2 text-sm font-semibold">
-        <ShoppingBag className="h-4 w-4" />
-        {displayCount} item{displayCount !== 1 ? "s" : ""}
+      <span className="relative flex h-9 w-9 items-center justify-center justify-self-start rounded-full bg-white/15">
+        <ShoppingCart className="h-4 w-4" />
+        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-orange-600">
+          {displayCount}
+        </span>
       </span>
-      <span className="flex items-center gap-1.5 text-sm font-semibold">
-        {formatPrice(subtotal)}
-        <ChevronUp className="h-4 w-4" />
-      </span>
+      <span className="justify-self-center text-sm font-bold tracking-wide">View Cart</span>
+      <span className="justify-self-end text-sm font-bold">{formatPrice(subtotal)}</span>
     </button>
   );
 }

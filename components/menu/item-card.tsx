@@ -2,77 +2,33 @@
 "use client";
 
 import Image from "next/image";
-import { Flame, Plus, Minus } from "lucide-react";
+import { Flame, Plus, Minus, Tag } from "lucide-react";
 import type { MenuItem } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
-import { isSimpleItem } from "@/lib/pricing";
-import { useCartLinesForItem, useCartStore } from "@/store/cart-store";
-
-const SPICY_COUNT: Record<MenuItem["spicyLevel"], number> = {
-  NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3,
-};
+import { formatVariantDiscount } from "@/lib/pricing";
+import { useItemCardActions } from "./use-item-card-actions";
 
 interface ItemCardProps {
   item: MenuItem;
+  restaurantLogo: string | null;
   onClick: () => void; // always means "open modal"
 }
 
-export function ItemCard({ item, onClick }: ItemCardProps) {
-  const defaultVariant = item.variants.find((v) => v.isDefault) ?? item.variants[0];
-  const spicyCount = SPICY_COUNT[item.spicyLevel];
-  const hasDiscount = item.discount !== null;
+export function ItemCard({ item, restaurantLogo, onClick }: ItemCardProps) {
+  const {
+    defaultVariant,
+    spicyCount,
+    discount,
+    totalQuantity,
+    handleAddButtonClick,
+    handleDecrement,
+    handleIncrement,
+  } = useItemCardActions(item, onClick);
 
-  const lines = useCartLinesForItem(item.id);
-  const addItem = useCartStore((s) => s.addItem);
-  const updateQuantity = useCartStore((s) => s.updateQuantity);
-  const totalQuantity = lines.reduce((sum, l) => sum + l.quantity, 0);
-  const targetLine = lines[lines.length - 1];
-
-  // Nothing to configure = single variant, zero addon groups.
-  const canQuickAdd = isSimpleItem(item);
-
-  function handleQuickAdd(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (!defaultVariant) return;
-    addItem({
-      menuItemId: item.id,
-      menuItemName: item.name,
-      menuItemImage: item.images[0]?.url ?? null,
-      variantId: defaultVariant.id,
-      variantName: defaultVariant.name,
-      variantPrice: defaultVariant.price,
-      finalPrice: defaultVariant.finalPrice,
-      selectedAddons: [],
-      quantity: 1,
-      specialInstructions: "",
-    });
-  }
-
-  // The Add button: quick-add if nothing to configure, otherwise open the modal.
-  function handleAddButtonClick(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (canQuickAdd) {
-      handleQuickAdd(e);
-    } else {
-      onClick();
-    }
-  }
-
-  function handleDecrement(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (targetLine) updateQuantity(targetLine.cartItemId, targetLine.quantity - 1);
-  }
-
-  function handleIncrement(e: React.MouseEvent) {
-    e.stopPropagation();
-    if (canQuickAdd && targetLine) {
-      updateQuantity(targetLine.cartItemId, targetLine.quantity + 1);
-    } else if (canQuickAdd) {
-      handleQuickAdd(e);
-    } else {
-      onClick(); // complex item — a new unit needs its own customization
-    }
-  }
+  // Fall back to the restaurant logo when the item has no photo of its own,
+  // so cards never show a bare gray box.
+  const itemImageUrl = item.images[0]?.url ?? null;
+  const imageSrc = itemImageUrl ?? restaurantLogo;
 
   return (
     <div
@@ -85,20 +41,26 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
       }`}
     >
       <div className="relative aspect-square w-full bg-neutral-100">
-        {item.images[0] && (
-          <Image src={item.images[0].url} alt={item.name} fill className="object-cover pointer-events-none" />
+        {imageSrc && (
+          <Image src={imageSrc} alt={item.name} fill className="object-cover pointer-events-none" />
         )}
-        <div className="absolute left-2 top-2 flex gap-1 pointer-events-none">
+        <div className="absolute left-2 top-2 flex flex-col items-start gap-1 pointer-events-none">
+          {discount && (
+            <span className="discount-badge flex items-center gap-1 rounded-md bg-gradient-to-r from-rose-600 to-red-500 px-2 py-1 text-[10px] font-bold text-white ring-1 ring-white]">
+              <Tag className="h-2.5 w-2.5 fill-white" />
+              {formatVariantDiscount(discount)}
+            </span>
+          )}
           {item.isBestseller && (
             <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-medium text-white">
               Bestseller
             </span>
           )}
-          {item.isNew && (
+          {/* {item.isNew && (
             <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-medium text-white">
               New
             </span>
-          )}
+          )} */}
         </div>
         <span
           className={`absolute right-2 top-2 h-3 w-3 rounded-full border-2 border-white pointer-events-none ${
@@ -132,7 +94,7 @@ export function ItemCard({ item, onClick }: ItemCardProps) {
                 <span className="text-sm font-semibold text-neutral-900">
                   {formatPrice(defaultVariant.finalPrice)}
                 </span>
-                {hasDiscount && (
+                {discount && (
                   <span className="text-xs text-neutral-400 line-through">{formatPrice(defaultVariant.price)}</span>
                 )}
               </>

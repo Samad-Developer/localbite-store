@@ -120,6 +120,7 @@ export function getMinimumOrder(
 
 // lib/pricing.ts — add this function
 import type { Restaurant, PaymentMethod } from "@/types/api";
+import type { CartItem } from "@/store/types";
 
 export function getAvailablePaymentMethods(restaurant: Restaurant): PaymentMethod[] {
   return [
@@ -127,4 +128,41 @@ export function getAvailablePaymentMethods(restaurant: Restaurant): PaymentMetho
     ...(restaurant.acceptsCard ? (["CARD"] as const) : []),
     ...(restaurant.acceptsOnline ? (["ONLINE"] as const) : []),
   ];
+}
+
+export interface VariantDiscount {
+  amountOff: number;
+  percentOff: number;
+}
+
+/**
+ * A variant counts as discounted whenever its own finalPrice is below its
+ * own price — checked per variant so every variant carries its own
+ * discount instead of only whichever one happens to be isDefault.
+ */
+export function getVariantDiscount(variant: Variant): VariantDiscount | null {
+  if (variant.finalPrice >= variant.price) return null;
+  const amountOff = variant.price - variant.finalPrice;
+  return { amountOff, percentOff: Math.round((amountOff / variant.price) * 100) };
+}
+
+export function formatVariantDiscount(discount: VariantDiscount): string {
+  return `${discount.percentOff}% OFF`;
+}
+
+function getCartItemOriginalUnitPrice(item: CartItem): number {
+  const addonsTotal = item.selectedAddons.reduce((sum, a) => sum + a.price, 0);
+  return item.variantPrice + addonsTotal;
+}
+
+export function getCartItemOriginalTotal(item: CartItem): number {
+  return getCartItemOriginalUnitPrice(item) * item.quantity;
+}
+
+export function getCartItemDiscount(item: CartItem): number {
+  return Math.max(0, getCartItemOriginalTotal(item) - item.itemTotal);
+}
+
+export function getCartTotalDiscount(items: CartItem[]): number {
+  return items.reduce((sum, item) => sum + getCartItemDiscount(item), 0);
 }

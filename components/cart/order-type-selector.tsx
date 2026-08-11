@@ -3,7 +3,7 @@
 
 import type { DeliveryArea, OrderType, Restaurant } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
-import { UtensilsCrossed, ShoppingBag, Bike, LucideIcon } from "lucide-react";
+import { UtensilsCrossed, ShoppingBag, Bike, ChevronDown, LucideIcon } from "lucide-react";
 interface OrderTypeSelectorProps {
   restaurant: Restaurant;
   deliveryAreas: DeliveryArea[];
@@ -44,21 +44,20 @@ export function OrderTypeSelector({
   if (available.length === 0) return null;
 
   return (
-    <div className="space-y-2">
-      <div className="flex gap-2">
+    <div className="rounded-2xl bg-neutral-100 p-1">
+      <div className="flex gap-1">
         {available.map((type) => {
           const Icon = ICONS[type];
+          const isSelected = orderType === type;
           return (
             <button
               key={type}
               onClick={() => onOrderTypeChange(type)}
-              className={`flex-1 rounded-lg border py-2 text-sm font-medium transition-colors ${
-                orderType === type
-                  ? "border-orange-500 bg-orange-50 text-orange-600"
-                  : "border-neutral-200 text-neutral-600 hover:border-neutral-300"
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all ${
+                isSelected ? "bg-white text-orange-600 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
               }`}
             >
-              <Icon className="mx-auto mb-1 h-5 w-5" />
+              <Icon className="h-3.5 w-3.5" />
               {LABELS[type]}
             </button>
           );
@@ -66,20 +65,23 @@ export function OrderTypeSelector({
       </div>
 
       {orderType === "DELIVERY" && (
-        <select
-          value={deliveryAreaId ?? ""}
-          onChange={(e) => onDeliveryAreaChange(e.target.value)}
-          className="w-full rounded-lg border border-neutral-200 p-2.5 text-sm outline-none focus:border-orange-400"
-        >
-          <option value="" disabled>
-            Select delivery area
-          </option>
-          {deliveryAreas.map((area) => (
-            <option key={area.id} value={area.id}>
-              {area.name} &middot; {formatPrice(area.deliveryFee)} delivery
+        <div className="relative mt-1">
+          <select
+            value={deliveryAreaId ?? ""}
+            onChange={(e) => onDeliveryAreaChange(e.target.value)}
+            className="w-full appearance-none rounded-xl border-0 bg-white px-4 py-3 pr-10 text-sm font-medium text-neutral-700 outline-none transition-colors focus:ring-2 focus:ring-orange-400"
+          >
+            <option value="" disabled>
+              Select delivery area
             </option>
-          ))}
-        </select>
+            {deliveryAreas.map((area) => (
+              <option key={area.id} value={area.id}>
+                {area.name} &middot; {formatPrice(area.deliveryFee)} delivery
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        </div>
       )}
     </div>
   );

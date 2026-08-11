@@ -27,7 +27,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      <MenuBrowser categories={menu.categories} />
+      <MenuBrowser categories={menu.categories} restaurantLogo={restaurant.logoUrl} />
     </>
   );
 }

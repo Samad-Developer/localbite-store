@@ -1,12 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Flame } from "lucide-react";
 import type { Category, MenuItem } from "@/types/api";
 import { ItemCard } from "./item-card";
+import { BestsellerCard } from "./bestseller-card";
 import { ItemModal } from "./item-modal";
 
-export function MenuBrowser({ categories }: { categories: Category[] }) {
+interface MenuBrowserProps {
+  categories: Category[];
+  restaurantLogo: string | null;
+}
+
+export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
   const [query, setQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState(
     categories[0]?.id ?? "",
@@ -23,6 +29,11 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
       .flatMap((c) => c.menuItems)
       .filter((item) => item.name.toLowerCase().includes(trimmedQuery));
   }, [categories, trimmedQuery, isSearching]);
+
+  const bestsellerItems = useMemo<MenuItem[]>(
+    () => categories.flatMap((c) => c.menuItems).filter((item) => item.isBestseller),
+    [categories],
+  );
 
   useEffect(() => {
     if (isSearching) return;
@@ -52,19 +63,24 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
     <div>
       {/* Sticky category tabs — full-bleed bar, but inner content aligned to the same container width as everything else */}
       {!isSearching && (
-        <div className="sticky top-0 z-40 w-full border-b border-orange-100 bg-orange-50/90 backdrop-blur-sm shadow-sm">
-          <div className="mx-auto flex w-full max-w-6xl gap-2 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
+        <div className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
+          <div className="mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-x-6 gap-y-1 px-4 sm:px-6 lg:px-8">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => scrollToCategory(cat.id)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-150 ${
+                className={`relative shrink-0 whitespace-nowrap py-4 text-sm font-semibold tracking-wide transition-colors duration-150 ${
                   activeCategoryId === cat.id
-                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/30"
-                    : "bg-white text-neutral-600 hover:bg-orange-100 hover:text-orange-700"
+                    ? "text-orange-600"
+                    : "text-neutral-500 hover:text-orange-500"
                 }`}
               >
                 {cat.name}
+                <span
+                  className={`absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-orange-500 transition-transform duration-200 ${
+                    activeCategoryId === cat.id ? "scale-x-100" : "scale-x-0"
+                  }`}
+                />
               </button>
             ))}
           </div>
@@ -86,6 +102,25 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
           </div>
         </div>
 
+        {!isSearching && bestsellerItems.length > 0 && (
+          <div className="py-4">
+            <div className="mb-3 flex items-center gap-2">
+              <Flame className="h-5 w-5 fill-orange-500 text-orange-500" />
+              <h2 className="text-lg font-bold text-neutral-900">Customer Favorites</h2>
+            </div>
+            <div className="custom-scroll flex gap-3 overflow-x-auto pb-2">
+              {bestsellerItems.map((item) => (
+                <BestsellerCard
+                  key={item.id}
+                  item={item}
+                  restaurantLogo={restaurantLogo}
+                  onClick={() => setActiveItem(item)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {isSearching ? (
           <div className="pb-8">
             {searchResults.length === 0 ? (
@@ -98,6 +133,7 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
                   <ItemCard
                     key={item.id}
                     item={item}
+                    restaurantLogo={restaurantLogo}
                     onClick={() => setActiveItem(item)}
                   />
                 ))}
@@ -114,16 +150,18 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
               }}
               className="py-6"
             >
-              {/* Category header — full-width band, accent bar, bigger type, item count */}
-              <div className="mb-6 flex flex-col items-center gap-1.5 py-2">
-                <div className="flex w-full items-center gap-4">
-                  <div className="h-px flex-1 bg-gradient-to-r from-transparent via-orange-200 to-orange-300" />
-                  <h2 className="shrink-0 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">
-                    {cat.name}
-                  </h2>
-                  <div className="h-px flex-1 bg-gradient-to-l from-transparent via-orange-200 to-orange-300" />
-                </div>
-                <span className="text-xs font-medium uppercase tracking-widest text-neutral-400">
+              {/* Category header — big centered banner with decorative accents */}
+              <div className="relative mb-8 flex flex-col items-center gap-2 overflow-hidden rounded-3xl bg-orange-50 py-8 text-center">
+                <div className="absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-200/30 blur-3xl" />
+                <span className="relative flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-500">
+                  <span className="h-px w-6 bg-orange-300" />
+                  Menu
+                  <span className="h-px w-6 bg-orange-300" />
+                </span>
+                <h2 className="relative text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">
+                  {cat.name}
+                </h2>
+                <span className="relative rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-600 shadow-sm">
                   {cat.menuItems.length} item
                   {cat.menuItems.length !== 1 ? "s" : ""}
                 </span>
@@ -134,6 +172,7 @@ export function MenuBrowser({ categories }: { categories: Category[] }) {
                   <ItemCard
                     key={item.id}
                     item={item}
+                    restaurantLogo={restaurantLogo}
                     onClick={() => setActiveItem(item)}
                   />
                 ))}

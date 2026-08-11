@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { OrderTypeSelector } from "@/components/cart/order-type-selector";
 import { PaymentMethodSelector } from "./payment-method-selector";
 import { OrderSummary } from "./order-summary";
@@ -135,24 +136,30 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
 
         <div className="space-y-3">
           <div>
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name" className="mb-1.5 block">
+              Name
+            </Label>
             <Input
               id="name"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Your full name"
+              className="h-12 rounded-xl"
             />
             {showValidation && errors.name && <p className="mt-1 text-xs text-red-500">Name is required</p>}
           </div>
 
           <div>
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone" className="mb-1.5 block">
+              Phone
+            </Label>
             <Input
               id="phone"
               type="tel"
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
               placeholder="03XX XXXXXXX"
+              className="h-12 rounded-xl"
             />
             {showValidation && errors.phone && <p className="mt-1 text-xs text-red-500">Phone is required</p>}
           </div>
@@ -183,12 +190,15 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
 
         {orderType === "DELIVERY" && (
           <div>
-            <Label htmlFor="address">Delivery address</Label>
+            <Label htmlFor="address" className="mb-1.5 block">
+              Delivery address
+            </Label>
             <Input
               id="address"
               value={customerAddress}
               onChange={(e) => setCustomerAddress(e.target.value)}
               placeholder="House / street / area"
+              className="h-12 rounded-xl"
             />
             {showValidation && errors.address && <p className="mt-1 text-xs text-red-500">Address is required</p>}
           </div>
@@ -207,7 +217,9 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
         </div>
 
         <div>
-          <Label htmlFor="notes">Special notes (optional)</Label>
+          <Label htmlFor="notes" className="mb-1.5 block">
+            Special notes (optional)
+          </Label>
           <textarea
             id="notes"
             value={specialNotes}
@@ -224,8 +236,9 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
         <Button
           type="submit"
           disabled={isSubmitting || errors.closed}
-          className="w-full bg-orange-500 py-6 text-base hover:bg-orange-600 disabled:opacity-50"
+          className="h-14 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 text-base font-semibold hover:bg-orange-600 disabled:opacity-50"
         >
+          {isSubmitting && <Spinner className="size-4 text-white" />}
           {isSubmitting ? "Placing order..." : "Place Order"}
         </Button>
       </div>

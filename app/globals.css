@@ -148,3 +148,29 @@
 .custom-scroll::-webkit-scrollbar-thumb:hover {
   background-color: #a3a3a3;
 }
+
+.discount-badge {
+  position: relative;
+  overflow: hidden;
+}
+.discount-badge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.65), transparent);
+  transform: translateX(-150%) skewX(-20deg);
+  animation: discount-shine 2.2s ease-in-out infinite;
+}
+
+@keyframes discount-shine {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  50% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-20deg);
+  }
+}

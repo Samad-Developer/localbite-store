@@ -3,7 +3,7 @@
 
 import { useCartStore, useCartSubtotal } from "@/store/cart-store";
 import { formatPrice } from "@/lib/utils";
-import { getDeliveryFee } from "@/lib/pricing";
+import { getDeliveryFee, getCartTotalDiscount, getCartItemOriginalTotal, getCartItemDiscount } from "@/lib/pricing";
 import type { Restaurant, DeliveryArea } from "@/types/api";
 
 interface OrderSummaryProps {
@@ -19,26 +19,50 @@ export function OrderSummary({ restaurant, deliveryAreas }: OrderSummaryProps) {
 
   const deliveryFee = getDeliveryFee(orderType, deliveryAreaId, deliveryAreas, restaurant.deliveryFee);
   const total = subtotal + deliveryFee;
+  const totalDiscount = getCartTotalDiscount(items);
+  const itemsTotalBeforeDiscount = subtotal + totalDiscount;
 
   return (
     <div className="rounded-xl border border-neutral-200 p-4">
       <h2 className="mb-3 text-base font-semibold text-neutral-900">Order Summary</h2>
 
       <div className="custom-scroll max-h-64 space-y-3 overflow-y-auto pr-1">
-        {items.map((item) => (
-          <div key={item.cartItemId} className="flex justify-between gap-2 text-sm">
-            <div className="min-w-0">
-              <p className="truncate text-neutral-800">
-                {item.quantity}&times; {item.menuItemName}
-              </p>
-              <p className="text-xs text-neutral-400">{item.variantName}</p>
+        {items.map((item) => {
+          const itemDiscount = getCartItemDiscount(item);
+          return (
+            <div key={item.cartItemId} className="flex justify-between gap-2 text-sm">
+              <div className="min-w-0">
+                <p className="truncate text-neutral-800">
+                  {item.quantity}&times; {item.menuItemName}
+                </p>
+                <p className="text-xs text-neutral-400">{item.variantName}</p>
+              </div>
+              <div className="shrink-0 text-right">
+                {itemDiscount > 0 && (
+                  <p className="text-xs text-neutral-400 line-through">
+                    {formatPrice(getCartItemOriginalTotal(item))}
+                  </p>
+                )}
+                <span className="font-medium text-neutral-700">{formatPrice(item.itemTotal)}</span>
+              </div>
             </div>
-            <span className="shrink-0 font-medium text-neutral-700">{formatPrice(item.itemTotal)}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-4 space-y-1.5 border-t border-neutral-200 pt-3 text-sm">
+        {totalDiscount > 0 && (
+          <>
+            <div className="flex justify-between text-neutral-600">
+              <span>Item total</span>
+              <span>{formatPrice(itemsTotalBeforeDiscount)}</span>
+            </div>
+            <div className="flex justify-between font-medium text-emerald-600">
+              <span>Discount</span>
+              <span>-{formatPrice(totalDiscount)}</span>
+            </div>
+          </>
+        )}
         <div className="flex justify-between text-neutral-600">
           <span>Subtotal</span>
           <span>{formatPrice(subtotal)}</span>

@@ -13,7 +13,7 @@ interface HeaderProps {
 export function Header({ restaurant, deliveryAreas }: HeaderProps) {
   return (
     <header className="border-b border-neutral-200 bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 md:grid md:grid-cols-3">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2 md:grid md:grid-cols-3">
         <div className="hidden md:flex">
           <a
             href={`tel:${restaurant.phone}`}
@@ -29,13 +29,12 @@ export function Header({ restaurant, deliveryAreas }: HeaderProps) {
             <Image
               src={restaurant.logoUrl}
               alt={restaurant.name}
-              width={36}
-              height={36}
-              className="rounded-full object-cover"
+              width={64}
+              height={64}
+              className="h-14 w-14 rounded-full object-cover ring-2 ring-orange-100 md:h-16 md:w-16"
               priority
             />
           )}
-          <span className="text-lg font-semibold text-neutral-900">{restaurant.name}</span>
         </Link>
 
         <div className="flex items-center justify-end gap-3">

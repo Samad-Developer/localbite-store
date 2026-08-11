@@ -22,6 +22,7 @@ import {
   canAddToCart,
   getSelectedAddonDetails,
   getUnsatisfiedRequiredGroups,
+  getVariantDiscount,
   toggleAddonSelection,
 } from "@/lib/pricing";
 import { useCartStore } from "@/store/cart-store";
@@ -70,6 +71,8 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
   const isValid = canAddToCart(selectedVariant.addonGroups, selectedAddons);
   const unitPrice = calculateUnitPrice(selectedVariant, selectedAddons);
   const total = unitPrice * quantity;
+  const discount = getVariantDiscount(selectedVariant);
+  const originalTotal = discount ? total + discount.amountOff * quantity : total;
 
   function handleVariantChange(variant: Variant) {
     setSelectedVariant(variant);
@@ -210,6 +213,15 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
                 </button>
               </div>
             </div>
+
+            {discount && (
+              <div className="mb-2 flex items-center justify-between text-xs">
+                <span className="font-semibold text-emerald-600">
+                  You save {formatPrice(originalTotal - total)}
+                </span>
+                <span className="text-neutral-400 line-through">{formatPrice(originalTotal)}</span>
+              </div>
+            )}
 
             <Button
               onClick={handleAddToCart}
