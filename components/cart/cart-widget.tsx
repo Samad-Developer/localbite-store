@@ -66,7 +66,7 @@ export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
       >
         <ShoppingCart className="h-5 w-5" />
         {displayCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-orange-500 px-1 text-[11px] font-medium text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-primary px-1 text-[11px] font-medium text-white">
             {displayCount}
           </span>
         )}
@@ -74,10 +74,10 @@ export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
 
       <SheetContent side="right" className="flex w-full flex-col gap-0 overflow-hidden rounded-l-2xl p-0 sm:max-w-md">
         <SheetHeader className="border-b border-neutral-200 p-5 pr-14">
-          <SheetTitle className="flex items-center justify-between text-xl font-bold text-neutral-900">
+          <SheetTitle className="flex items-center gap-2.5 text-xl font-bold text-neutral-900">
             Your Cart
             {displayCount > 0 && (
-              <span className="text-sm font-medium text-neutral-400">
+              <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-strong">
                 {displayCount} item{displayCount !== 1 ? "s" : ""}
               </span>
             )}
@@ -164,7 +164,7 @@ export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
 
               <Button
                 disabled={!canCheckout}
-                className="mt-1 h-14 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 text-base font-semibold hover:bg-orange-600 disabled:opacity-50"
+                className="mt-1 h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand-primary text-base font-semibold text-brand-secondary hover:bg-brand-hover disabled:opacity-50"
                 onClick={() => {
                   closeCart();
                   router.push("/checkout");

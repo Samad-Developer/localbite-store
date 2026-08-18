@@ -38,13 +38,13 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
             {/* Rail: icon bubble + connector line down to the next step */}
             <div className="flex flex-col items-center">
               <div className="relative shrink-0">
-                {isCurrent && <span className="absolute inset-0 animate-ping rounded-full bg-orange-400 opacity-60" />}
+                {isCurrent && <span className="absolute inset-0 animate-ping rounded-full bg-brand-primary opacity-60" />}
                 <div
                   className={`relative flex h-9 w-9 items-center justify-center rounded-full transition-colors ${
                     isComplete
-                      ? "bg-orange-500 text-white"
+                      ? "bg-brand-primary text-white"
                       : isCurrent
-                        ? "bg-orange-500 text-white ring-4 ring-orange-100"
+                        ? "bg-brand-primary text-white ring-4 ring-brand-soft"
                         : "bg-neutral-100 text-neutral-300"
                   }`}
                 >
@@ -54,7 +54,7 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
               {!isLast && (
                 <div
                   className={`w-0.5 flex-1 rounded-full transition-colors ${
-                    isComplete ? "bg-orange-500" : "bg-neutral-100"
+                    isComplete ? "bg-brand-primary" : "bg-neutral-100"
                   }`}
                 />
               )}

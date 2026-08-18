@@ -33,7 +33,7 @@ export function AddonGroup({ group, selectedIds, isUnsatisfied, onToggle }: Addo
               key={addon.id}
               className={`flex cursor-pointer items-center justify-between rounded-xl border px-3 py-2.5 transition-colors ${
                 isChecked
-                  ? "border-orange-500 bg-orange-50"
+                  ? "border-brand-primary bg-brand-soft"
                   : "border-neutral-200 hover:border-neutral-300"
               }`}
             >
@@ -48,7 +48,7 @@ export function AddonGroup({ group, selectedIds, isUnsatisfied, onToggle }: Addo
                 <span
                   className={`flex h-5 w-5 shrink-0 items-center justify-center border-2 transition-colors ${
                     group.isMultiple ? "rounded-md" : "rounded-full"
-                  } ${isChecked ? "border-orange-500 bg-orange-500" : "border-neutral-300 bg-white"}`}
+                  } ${isChecked ? "border-brand-primary bg-brand-primary" : "border-neutral-300 bg-white"}`}
                 >
                   {isChecked &&
                     (group.isMultiple ? (
@@ -62,7 +62,7 @@ export function AddonGroup({ group, selectedIds, isUnsatisfied, onToggle }: Addo
                 </span>
               </div>
               {addon.price > 0 && (
-                <span className={`text-sm ${isChecked ? "font-medium text-orange-600" : "text-neutral-500"}`}>
+                <span className={`text-sm ${isChecked ? "font-medium text-brand-strong" : "text-neutral-500"}`}>
                   +{formatPrice(addon.price)}
                 </span>
               )}

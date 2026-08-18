@@ -36,13 +36,18 @@ export function ItemCard({ item, restaurantLogo, onClick }: ItemCardProps) {
       tabIndex={0}
       onClick={onClick}
       onKeyDown={(e) => e.key === "Enter" && onClick()}
-      className={`flex flex-col overflow-hidden rounded-xl border border-neutral-200 text-left transition-shadow hover:shadow-md cursor-pointer ${
+      className={`group flex cursor-pointer flex-col overflow-hidden rounded-xl border border-neutral-200 text-left transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-brand-primary hover:shadow-lg ${
         !item.isAvailable ? "opacity-50" : ""
       }`}
     >
-      <div className="relative aspect-square w-full bg-neutral-100">
+      <div className="relative aspect-square w-full overflow-hidden bg-neutral-100">
         {imageSrc && (
-          <Image src={imageSrc} alt={item.name} fill className="object-cover pointer-events-none" />
+          <Image
+            src={imageSrc}
+            alt={item.name}
+            fill
+            className="pointer-events-none object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+          />
         )}
         <div className="absolute left-2 top-2 flex flex-col items-start gap-1 pointer-events-none">
           {discount && (
@@ -52,7 +57,7 @@ export function ItemCard({ item, restaurantLogo, onClick }: ItemCardProps) {
             </span>
           )}
           {item.isBestseller && (
-            <span className="rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-medium text-white">
+            <span className="rounded-full bg-brand-primary px-2 py-0.5 text-[10px] font-medium text-brand-secondary">
               Bestseller
             </span>
           )}
@@ -105,16 +110,17 @@ export function ItemCard({ item, restaurantLogo, onClick }: ItemCardProps) {
             (totalQuantity === 0 ? (
               <button
                 onClick={handleAddButtonClick}
-                className="flex h-7 items-center justify-center rounded-full bg-orange-500 px-3 text-xs font-semibold text-white hover:bg-orange-600"
+                className="flex h-7 items-center justify-center gap-1 rounded-full bg-brand-primary pl-2 pr-3 text-xs font-semibold text-brand-secondary hover:bg-brand-hover"
               >
+                <Plus className="h-3.5 w-3.5" />
                 Add
               </button>
             ) : (
-              <div className="flex items-center gap-1.5 rounded-full bg-orange-500 px-1 py-1 text-white">
+              <div className="flex items-center gap-1.5 rounded-full bg-brand-primary px-1 py-1 text-brand-secondary">
                 <button
                   onClick={handleDecrement}
                   aria-label="Decrease quantity"
-                  className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-orange-600"
+                  className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-brand-hover"
                 >
                   <Minus className="h-3 w-3" />
                 </button>
@@ -122,7 +128,7 @@ export function ItemCard({ item, restaurantLogo, onClick }: ItemCardProps) {
                 <button
                   onClick={handleIncrement}
                   aria-label="Increase quantity"
-                  className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-orange-600"
+                  className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-brand-hover"
                 >
                   <Plus className="h-3 w-3" />
                 </button>

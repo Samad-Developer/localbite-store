@@ -17,7 +17,7 @@ export default async function CheckoutLayout({ children }: { children: React.Rea
               alt={restaurant.name}
               width={64}
               height={64}
-              className="h-14 w-14 rounded-full object-cover ring-2 ring-orange-100"
+              className="h-14 w-14 rounded-full object-cover ring-2 ring-brand-soft"
               priority
             />
           )}

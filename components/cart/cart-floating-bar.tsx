@@ -26,11 +26,11 @@ export function CartFloatingBar() {
   return (
     <button
       onClick={openCart}
-      className="fixed inset-x-4 bottom-4 z-40 mx-auto grid max-w-xs grid-cols-3 items-center gap-2 rounded-2xl bg-orange-500 px-4 py-3.5 text-white shadow-xltransition-transform hover:scale-[1.02] active:scale-[0.98]"
+      className="fixed inset-x-4 bottom-4 z-40 mx-auto grid max-w-xs grid-cols-3 items-center gap-2 rounded-2xl bg-brand-primary px-4 py-3.5 text-brand-secondary shadow-xl transition-transform hover:scale-[1.02] active:scale-[0.98]"
     >
-      <span className="relative flex h-9 w-9 items-center justify-center justify-self-start rounded-full bg-white/15">
+      <span className="relative flex h-9 w-9 items-center justify-center justify-self-start rounded-full bg-brand-secondary/15">
         <ShoppingCart className="h-4 w-4" />
-        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-orange-600">
+        <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-secondary px-1 text-[10px] font-bold text-brand-strong">
           {displayCount}
         </span>
       </span>

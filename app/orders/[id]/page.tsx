@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import {
   Check,
+  Receipt,
   User,
   Phone,
   MapPin,
@@ -111,6 +112,7 @@ export default function OrderTrackingPage() {
     );
   }
 
+  const itemCount = order.items.reduce((n, i) => n + i.quantity, 0);
   const OrderTypeIcon = ORDER_TYPE_ICONS[order.type];
   const PaymentIcon = PAYMENT_ICONS[order.paymentMethod];
 
@@ -137,70 +139,126 @@ export default function OrderTrackingPage() {
         <OrderStatusTimeline status={order.status} />
       </div>
 
-      <div className="mb-6 rounded-2xl border border-neutral-200 px-4 py-3">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <div className="flex items-center gap-2 text-neutral-700">
-            <User className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
-            <span className="truncate">{order.customerName}</span>
-          </div>
-          <div className="flex items-center gap-2 text-neutral-700">
-            <Phone className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
-            <span className="truncate">{order.customerPhone}</span>
-          </div>
-          <div className="flex items-center gap-2 text-neutral-700">
-            <OrderTypeIcon className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
-            <span className="truncate">{ORDER_TYPE_LABELS[order.type]}</span>
-          </div>
-          <div className="flex items-center gap-2 text-neutral-700">
-            <PaymentIcon className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
-            <span className="truncate">{PAYMENT_LABELS[order.paymentMethod]}</span>
-          </div>
+      {/* Customer & order details */}
+      <div className="mb-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <div className="flex items-center gap-2.5 border-b border-neutral-200 bg-neutral-50 px-5 py-3.5">
+          <User className="h-4 w-4 text-brand-primary" />
+          <h2 className="text-sm font-bold text-neutral-900">Order details</h2>
+        </div>
+
+        <dl className="grid grid-cols-2 gap-px bg-neutral-100">
+          <DetailRow icon={User} label="Name" value={order.customerName} />
+          <DetailRow
+            icon={Phone}
+            label="Phone"
+            value={
+              <a
+                href={`tel:${order.customerPhone}`}
+                className="font-semibold text-neutral-900 underline-offset-4 hover:text-brand-strong hover:underline"
+              >
+                {order.customerPhone}
+              </a>
+            }
+          />
+          <DetailRow
+            icon={OrderTypeIcon}
+            label="Order type"
+            value={
+              <span className="inline-flex items-center rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-strong">
+                {ORDER_TYPE_LABELS[order.type]}
+              </span>
+            }
+          />
+          <DetailRow
+            icon={PaymentIcon}
+            label="Payment"
+            value={PAYMENT_LABELS[order.paymentMethod]}
+          />
           {order.customerAddress && (
-            <div className="col-span-2 flex items-center gap-2 text-neutral-700">
-              <MapPin className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
-              <span className="truncate">{order.customerAddress}</span>
-            </div>
+            <DetailRow icon={MapPin} label="Address" value={order.customerAddress} full />
           )}
           {order.specialNotes && (
-            <div className="col-span-2 flex items-center gap-2 text-neutral-500">
-              <MessageSquareText className="h-3.5 w-3.5 shrink-0 text-neutral-400" />
-              <span className="truncate italic">&quot;{order.specialNotes}&quot;</span>
+            <DetailRow
+              icon={MessageSquareText}
+              label="Notes"
+              value={<span className="italic text-neutral-500">{order.specialNotes}</span>}
+              full
+            />
+          )}
+        </dl>
+      </div>
+
+      {/* Items */}
+      <div className="mb-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
+        <div className="flex items-center gap-2.5 border-b border-neutral-200 bg-neutral-50 px-5 py-3.5">
+          <Receipt className="h-4 w-4 text-brand-primary" />
+          <h2 className="text-sm font-bold text-neutral-900">Items</h2>
+          <span className="ml-auto rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-bold text-brand-strong">
+            {itemCount} item{itemCount !== 1 ? "s" : ""}
+          </span>
+        </div>
+
+        <div className="px-5 py-4">
+          <OrderItemsList items={order.items} />
+        </div>
+
+        <div className="space-y-2 border-t border-neutral-200 px-5 py-4 text-sm">
+          <div className="flex items-center justify-between text-neutral-500">
+            <span>Subtotal</span>
+            <span className="font-medium tabular-nums text-neutral-700">
+              {formatPrice(order.subtotal)}
+            </span>
+          </div>
+          {order.deliveryFee > 0 && (
+            <div className="flex items-center justify-between text-neutral-500">
+              <span>Delivery fee</span>
+              <span className="font-medium tabular-nums text-neutral-700">
+                {formatPrice(order.deliveryFee)}
+              </span>
             </div>
           )}
         </div>
-      </div>
 
-      <div className="mb-8 rounded-2xl border border-neutral-200 p-5">
-        <h2 className="mb-3 text-base font-semibold text-neutral-900">Items</h2>
-        <OrderItemsList items={order.items} />
-
-        <div className="mt-4 space-y-1 border-t border-neutral-200 pt-3 text-sm">
-          <div className="flex justify-between text-neutral-600">
-            <span>Subtotal</span>
-            <span>{formatPrice(order.subtotal)}</span>
-          </div>
-          {order.deliveryFee > 0 && (
-            <div className="flex justify-between text-neutral-600">
-              <span>Delivery fee</span>
-              <span>{formatPrice(order.deliveryFee)}</span>
-            </div>
-          )}
-          <div className="flex justify-between pt-1 text-base font-semibold text-neutral-900">
-            <span>Total</span>
-            <span>{formatPrice(order.total)}</span>
-          </div>
+        <div className="flex items-baseline justify-between bg-neutral-50 px-5 py-4">
+          <span className="text-sm font-bold text-neutral-900">Total</span>
+          <span className="text-xl font-extrabold tabular-nums tracking-tight text-neutral-900">
+            {formatPrice(order.total)}
+          </span>
         </div>
       </div>
 
       <div className="flex justify-center">
         <Link
           href="/"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-orange-500 px-8 text-base font-semibold text-white transition-colors hover:bg-orange-600"
+          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand-primary px-8 text-base font-semibold text-brand-secondary transition-colors hover:bg-brand-hover"
         >
           <RotateCcw className="h-4 w-4" />
           Place Another Order
         </Link>
       </div>
+    </div>
+  );
+}
+
+/* One cell in the order-details grid. Two sit side by side; `full` spans the row. */
+function DetailRow({
+  icon: Icon,
+  label,
+  value,
+  full,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: React.ReactNode;
+  full?: boolean;
+}) {
+  return (
+    <div className={`bg-white px-4 py-3 ${full ? "col-span-2" : ""}`}>
+      <dt className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-neutral-400">
+        <Icon className="h-3.5 w-3.5 shrink-0" />
+        {label}
+      </dt>
+      <dd className="mt-1 break-words text-sm font-medium text-neutral-900">{value}</dd>
     </div>
   );
 }

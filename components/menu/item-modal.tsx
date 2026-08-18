@@ -3,12 +3,11 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { Minus, Plus, X } from "lucide-react";
+import { Minus, Plus, UtensilsCrossed, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -30,11 +29,12 @@ import { toast } from "sonner";
 
 interface ItemModalProps {
   item: MenuItem | null;
+  restaurantLogo: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
+export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModalProps) {
 
   // default states
   const addItem = useCartStore((s) => s.addItem);
@@ -73,6 +73,10 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
   const total = unitPrice * quantity;
   const discount = getVariantDiscount(selectedVariant);
   const originalTotal = discount ? total + discount.amountOff * quantity : total;
+
+  // Fall back to the restaurant logo when the item has no photo, same as the cards do.
+  const itemImageUrl = item.images[0]?.url ?? null;
+  const imageSrc = itemImageUrl ?? restaurantLogo;
 
   function handleVariantChange(variant: Variant) {
     setSelectedVariant(variant);
@@ -116,38 +120,67 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex max-h-[90vh] flex-col overflow-hidden rounded-2xl p-0 sm:mx-auto sm:max-w-xl"
+        className="flex max-h-[90vh] w-full flex-col gap-0 overflow-hidden rounded-2xl p-0 sm:max-w-3xl sm:flex-row"
       >
-        <div className="">
-          {item.images[0] && (
-            <div className="relative aspect-video w-full">
-              <Image
-                src={item.images[0].url}
-                alt={item.name}
-                fill
-                className="object-cover"
-              />
-              <button
-                onClick={() => onOpenChange(false)}
-                aria-label="Close"
-                className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 hover:bg-white"
-              >
-                <X className="h-4 w-4" />
-              </button>
+        <button
+          onClick={() => onOpenChange(false)}
+          aria-label="Close"
+          className="absolute right-3 top-3 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white shadow-lg ring-1 ring-white/50 backdrop-blur-sm transition-colors hover:bg-black/70 sm:hidden"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        {/* LEFT — image only, shown whole: never cropped, never zoomed.
+            Mobile: full-bleed across the top. Desktop: own column, pinned to the top
+            so it lines up with the header instead of floating mid-panel. */}
+        <div className="relative aspect-[16/10] w-full shrink-0 border-b border-neutral-200 sm:aspect-auto sm:w-5/12 sm:self-stretch sm:border-b-0 sm:border-r">
+          {imageSrc ? (
+            <Image
+              src={imageSrc}
+              alt={item.name}
+              fill
+              sizes="(min-width: 640px) 42vw, 100vw"
+              className="object-cover object-top sm:object-contain sm:p-3"
+            />
+          ) : (
+            <div className="flex h-full w-full items-start justify-center pt-10 sm:pt-16">
+              <UtensilsCrossed className="h-10 w-10 text-neutral-300" />
             </div>
           )}
         </div>
 
-        <div className="custom-scroll flex flex-1 flex-col overflow-y-auto">
-          <div className="space-y-5 p-4">
-            <DialogHeader className="p-0 text-left">
-              <DialogTitle>{item.name}</DialogTitle>
-              {item.description && (
-                <DialogDescription className="text-sm text-neutral-600">
-                  {item.description}
-                </DialogDescription>
-              )}
+        {/* RIGHT — fixed header (desktop only), scrolling middle, fixed footer */}
+        <div className="flex min-h-0 w-full min-w-0 flex-col sm:w-7/12">
+          {/* Desktop header — a sibling of the scroll box, so the scrollbar never spans it.
+              Hidden on mobile, but kept in the DOM: the dialog is labelled by this title. */}
+          <div className="hidden shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-5 py-4 sm:flex">
+            <DialogHeader className="min-w-0 flex-1 p-0 text-left">
+              <DialogTitle className="truncate text-lg font-bold text-neutral-900">
+                {item.name}
+              </DialogTitle>
             </DialogHeader>
+            <button
+              onClick={() => onOpenChange(false)}
+              aria-label="Close"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-600 transition-colors hover:bg-neutral-200"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* Scrolling middle — the only scrollable region */}
+          <div className="custom-scroll min-h-0 flex-1 overflow-y-auto">
+            <div className="space-y-5 px-5 py-4">
+              {/* Mobile title — scrolls with the content. aria-hidden because the
+                  DialogTitle above already names the dialog. */}
+              <h2 aria-hidden className="text-lg font-bold text-neutral-900 sm:hidden">
+                {item.name}
+              </h2>
+            {item.description && (
+              <DialogDescription className="text-sm text-neutral-600">
+                {item.description}
+              </DialogDescription>
+            )}
 
             <VariantSelector
               variants={item.variants}
@@ -185,37 +218,16 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
                 onChange={(e) => setSpecialInstructions(e.target.value)}
                 placeholder="e.g. no onions, extra spicy..."
                 rows={2}
-                className="w-full resize-none rounded-lg border border-neutral-200 p-2.5 text-sm outline-none focus:border-orange-400"
+                className="w-full resize-none rounded-lg border border-neutral-200 p-2.5 text-sm outline-none focus:border-brand-primary"
               />
+            </div>
             </div>
           </div>
 
-          <div className="border-t border-neutral-200 p-4">
-            <div className="mb-3 flex items-center justify-between">
-              <span className="text-sm font-medium text-neutral-700">
-                Quantity
-              </span>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  aria-label="Decrease quantity"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-300 hover:bg-neutral-100"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-6 text-center font-medium">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  aria-label="Increase quantity"
-                  className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-300 hover:bg-neutral-100"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
+          {/* Fixed footer — quantity at the start, Add to Cart taking the rest of the row */}
+          <div className="shrink-0 border-t border-neutral-200 bg-white px-5 py-4">
             {discount && (
-              <div className="mb-2 flex items-center justify-between text-xs">
+              <div className="mb-2.5 flex items-center justify-between text-xs">
                 <span className="font-semibold text-emerald-600">
                   You save {formatPrice(originalTotal - total)}
                 </span>
@@ -223,12 +235,33 @@ export function ItemModal({ item, open, onOpenChange }: ItemModalProps) {
               </div>
             )}
 
-            <Button
-              onClick={handleAddToCart}
-              className="w-full bg-orange-500 hover:bg-orange-600"
-            >
-              Add to Cart &middot; {formatPrice(total)}
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="flex h-14 shrink-0 items-center gap-1 rounded-2xl border border-neutral-300 px-1">
+                <button
+                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                  aria-label="Decrease quantity"
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-700 transition-colors hover:bg-neutral-100"
+                >
+                  <Minus className="h-4 w-4" />
+                </button>
+                <span className="w-6 text-center text-base font-semibold">{quantity}</span>
+                <button
+                  onClick={() => setQuantity((q) => q + 1)}
+                  aria-label="Increase quantity"
+                  className="flex h-10 w-10 items-center justify-center rounded-full text-neutral-700 transition-colors hover:bg-neutral-100"
+                >
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+
+              <Button
+                onClick={handleAddToCart}
+                className="h-14 flex-1 gap-2 rounded-2xl bg-brand-primary text-base font-semibold text-brand-secondary hover:bg-brand-hover"
+              >
+                <Plus className="h-4 w-4" />
+                Add to Cart &middot; {formatPrice(total)}
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>

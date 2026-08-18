@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Flame } from "lucide-react";
+import { Search, Flame, X } from "lucide-react";
 import type { Category, MenuItem } from "@/types/api";
 import { ItemCard } from "./item-card";
 import { BestsellerCard } from "./bestseller-card";
@@ -18,7 +18,9 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
     categories[0]?.id ?? "",
   );
   const [activeItem, setActiveItem] = useState<MenuItem | null>(null);
+  const [isStuck, setIsStuck] = useState(false);
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   const trimmedQuery = query.trim().toLowerCase();
   const isSearching = trimmedQuery.length > 0;
@@ -34,6 +36,23 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
     () => categories.flatMap((c) => c.menuItems).filter((item) => item.isBestseller),
     [categories],
   );
+
+  // The bar only earns its border once it has actually stuck to the top.
+  // A zero-height sentinel sits directly above it: the moment the sentinel
+  // scrolls out of view, the bar is pinned.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) {
+      setIsStuck(false);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsStuck(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [isSearching]);
 
   useEffect(() => {
     if (isSearching) return;
@@ -63,52 +82,66 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
     <div>
       {/* Sticky category tabs — full-bleed bar, but inner content aligned to the same container width as everything else */}
       {!isSearching && (
-        <div className="sticky top-0 z-40 w-full border-b border-neutral-200 bg-white/95 backdrop-blur-sm">
-          <div className="mx-auto flex w-full max-w-6xl flex-wrap justify-center gap-x-6 gap-y-1 px-4 sm:px-6 lg:px-8">
+        <>
+        <div ref={sentinelRef} aria-hidden className="h-px w-full" />
+        <div
+          className={`sticky top-0 z-40 w-full bg-neutral-50 transition-shadow duration-200 ${
+            isStuck
+              ? "border-b border-neutral-200 shadow-[0_1px_3px_rgba(0,0,0,0.06)]"
+              : "border-b border-transparent"
+          }`}
+        >
+          <div className="custom-scroll mx-auto flex w-full max-w-6xl justify-center gap-2 overflow-x-auto px-4 py-2.5 sm:px-6 lg:px-8">
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => scrollToCategory(cat.id)}
-                className={`relative shrink-0 whitespace-nowrap py-4 text-sm font-semibold tracking-wide transition-colors duration-150 ${
+                className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold tracking-wide transition-colors duration-150 ${
                   activeCategoryId === cat.id
-                    ? "text-orange-600"
-                    : "text-neutral-500 hover:text-orange-500"
+                    ? "bg-brand-primary text-brand-secondary shadow-sm"
+                    : "text-neutral-600 hover:bg-brand-soft hover:text-brand-strong"
                 }`}
               >
                 {cat.name}
-                <span
-                  className={`absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-orange-500 transition-transform duration-200 ${
-                    activeCategoryId === cat.id ? "scale-x-100" : "scale-x-0"
-                  }`}
-                />
               </button>
             ))}
           </div>
         </div>
+        </>
       )}
 
       {/* Everything below shares one consistent centered container */}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="py-3">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+        <div className="py-4">
+          <div className="group flex h-12 items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 transition-colors focus-within:border-brand-primary focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-soft">
+            <Search className="h-[18px] w-[18px] shrink-0 text-neutral-400 transition-colors group-focus-within:text-brand-primary" />
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search menu..."
-              className="w-full rounded-full border border-neutral-200 bg-neutral-50 py-2.5 pl-10 pr-4 text-sm outline-none focus:border-orange-400 focus:bg-white"
+              placeholder="Search for dishes..."
+              className="h-full min-w-0 flex-1 bg-transparent text-sm font-medium text-neutral-900 outline-none placeholder:font-normal placeholder:text-neutral-400"
             />
+            {isSearching && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                aria-label="Clear search"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-neutral-600 transition-colors hover:bg-brand-primary hover:text-brand-secondary"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
 
         {!isSearching && bestsellerItems.length > 0 && (
           <div className="py-4">
             <div className="mb-3 flex items-center gap-2">
-              <Flame className="h-5 w-5 fill-orange-500 text-orange-500" />
+              <Flame className="h-5 w-5 fill-brand-primary text-brand-primary" />
               <h2 className="text-lg font-bold text-neutral-900">Customer Favorites</h2>
             </div>
-            <div className="custom-scroll flex gap-3 overflow-x-auto pb-2">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {bestsellerItems.map((item) => (
                 <BestsellerCard
                   key={item.id}
@@ -150,18 +183,19 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
               }}
               className="py-6"
             >
-              {/* Category header — big centered banner with decorative accents */}
-              <div className="relative mb-8 flex flex-col items-center gap-2 overflow-hidden rounded-3xl bg-orange-50 py-8 text-center">
-                <div className="absolute left-1/2 top-0 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full bg-orange-200/30 blur-3xl" />
-                <span className="relative flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-orange-500">
-                  <span className="h-px w-6 bg-orange-300" />
-                  Menu
-                  <span className="h-px w-6 bg-orange-300" />
-                </span>
-                <h2 className="relative text-3xl font-extrabold tracking-tight text-neutral-900 sm:text-4xl">
+              {/* Category header — classic menu-card treatment: rule with a diamond, uppercase name */}
+              <div className="mb-8 flex flex-col items-center gap-2.5 text-center">
+                <div className="flex items-center gap-3">
+                  <span className="h-px w-10 bg-neutral-300 sm:w-16" />
+                  <span className="h-1.5 w-1.5 rotate-45 bg-brand-primary" />
+                  <span className="h-px w-10 bg-neutral-300 sm:w-16" />
+                </div>
+
+                <h2 className="text-2xl font-bold uppercase tracking-[0.18em] text-neutral-900 sm:text-4xl">
                   {cat.name}
                 </h2>
-                <span className="relative rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-600 shadow-sm">
+
+                <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400">
                   {cat.menuItems.length} item
                   {cat.menuItems.length !== 1 ? "s" : ""}
                 </span>
@@ -184,6 +218,7 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
 
       <ItemModal
         item={activeItem}
+        restaurantLogo={restaurantLogo}
         open={activeItem !== null}
         onOpenChange={(open) => !open && setActiveItem(null)}
       />

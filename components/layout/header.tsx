@@ -17,7 +17,7 @@ export function Header({ restaurant, deliveryAreas }: HeaderProps) {
         <div className="hidden md:flex">
           <a
             href={`tel:${restaurant.phone}`}
-            className="flex items-center gap-2 text-sm text-neutral-600 hover:text-orange-600"
+            className="flex items-center gap-2 text-sm text-neutral-600 hover:text-brand-strong"
           >
             <Phone className="h-4 w-4" />
             {restaurant.phone}
@@ -31,7 +31,7 @@ export function Header({ restaurant, deliveryAreas }: HeaderProps) {
               alt={restaurant.name}
               width={64}
               height={64}
-              className="h-14 w-14 rounded-full object-cover ring-2 ring-orange-100 md:h-16 md:w-16"
+              className="h-14 w-14 rounded-full object-cover ring-2 ring-brand-soft md:h-16 md:w-16"
               priority
             />
           )}
@@ -41,7 +41,7 @@ export function Header({ restaurant, deliveryAreas }: HeaderProps) {
           <a
             href={`tel:${restaurant.phone}`}
             aria-label="Call restaurant"
-            className="text-neutral-600 hover:text-orange-600 md:hidden"
+            className="text-neutral-600 hover:text-brand-strong md:hidden"
           >
             <Phone className="h-5 w-5" />
 

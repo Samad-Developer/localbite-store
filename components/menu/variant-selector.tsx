@@ -14,7 +14,9 @@ export function VariantSelector({ variants, selectedVariantId, onSelect }: Varia
   if (variants.length <= 1) return null;
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div>
+      <h3 className="mb-2 text-sm font-semibold text-neutral-900">Choose an option</h3>
+      <div className="flex flex-wrap gap-2">
       {variants.map((variant) => {
         const isSelected = variant.id === selectedVariantId;
         const discount = getVariantDiscount(variant);
@@ -24,11 +26,11 @@ export function VariantSelector({ variants, selectedVariantId, onSelect }: Varia
             onClick={() => onSelect(variant)}
             className={`flex flex-col items-start gap-0.5 rounded-xl border px-4 py-2 text-left transition-colors ${
               isSelected
-                ? "border-orange-500 bg-orange-50"
+                ? "border-brand-primary bg-brand-soft"
                 : "border-neutral-300 hover:border-neutral-400"
             }`}
           >
-            <span className={`text-sm font-medium ${isSelected ? "text-orange-600" : "text-neutral-700"}`}>
+            <span className={`text-sm font-medium ${isSelected ? "text-brand-strong" : "text-neutral-700"}`}>
               {variant.name}
             </span>
             <span className="flex items-center gap-1.5">
@@ -43,8 +45,9 @@ export function VariantSelector({ variants, selectedVariantId, onSelect }: Varia
               )}
             </span>
           </button>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

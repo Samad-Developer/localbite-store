@@ -82,7 +82,7 @@ export function CartLineItem({ item, restaurantLogo, onUpdateQuantity, onRemove 
         <div className="mt-2 border-t border-neutral-100 pt-2">
           <button
             onClick={() => setExpanded((e) => !e)}
-            className="flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700"
+            className="flex items-center gap-1 text-xs text-brand-strong hover:text-brand-strong"
           >
             {item.selectedAddons.length} add-on{item.selectedAddons.length > 1 ? "s" : ""}
             <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />

@@ -54,7 +54,7 @@ export function OrderTypeSelector({
               key={type}
               onClick={() => onOrderTypeChange(type)}
               className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-semibold transition-all ${
-                isSelected ? "bg-white text-orange-600 shadow-sm" : "text-neutral-500 hover:text-neutral-700"
+                isSelected ? "bg-white text-brand-strong shadow-sm" : "text-neutral-500 hover:text-neutral-700"
               }`}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -69,7 +69,7 @@ export function OrderTypeSelector({
           <select
             value={deliveryAreaId ?? ""}
             onChange={(e) => onDeliveryAreaChange(e.target.value)}
-            className="w-full appearance-none rounded-xl border-0 bg-white px-4 py-3 pr-10 text-sm font-medium text-neutral-700 outline-none transition-colors focus:ring-2 focus:ring-orange-400"
+            className="w-full appearance-none rounded-xl border-0 bg-white px-4 py-3 pr-10 text-sm font-medium text-neutral-700 outline-none transition-colors focus:ring-2 focus:ring-brand-primary"
           >
             <option value="" disabled>
               Select delivery area

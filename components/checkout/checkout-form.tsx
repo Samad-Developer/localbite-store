@@ -2,7 +2,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AlertCircle, ArrowLeft, ShieldCheck, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +16,7 @@ import { OrderSummary } from "./order-summary";
 import { useCartStore, useCartSubtotal } from "@/store/cart-store";
 import { createOrder, ApiError } from "@/lib/api";
 import { getAvailablePaymentMethods, getDeliveryFee, getMinimumOrder } from "@/lib/pricing";
-import { isRestaurantOpenNow } from "@/lib/utils";
+import { cn, isRestaurantOpenNow } from "@/lib/utils";
 import type { Restaurant, DeliveryArea, PaymentMethod, OrderItemPayload } from "@/types/api";
 
 interface CheckoutFormProps {
@@ -119,130 +121,176 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
 
   if (items.length === 0) {
     return (
-      <div className="mx-auto max-w-md py-16 text-center">
-        <p className="text-neutral-500">Your cart is empty.</p>
+      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100">
+          <ShoppingBag className="h-7 w-7 text-neutral-300" />
+        </div>
+        <p className="text-base font-semibold text-neutral-900">Your cart is empty</p>
+        <p className="text-sm text-neutral-500">Add a few items and come back to check out.</p>
+        <Link
+          href="/"
+          className="mt-2 inline-flex h-11 items-center rounded-xl bg-brand-primary px-5 text-sm font-semibold text-brand-secondary transition-colors hover:bg-brand-hover"
+        >
+          Browse the menu
+        </Link>
       </div>
     );
   }
 
+  const fieldBase =
+    "h-12 rounded-xl border-neutral-200 bg-neutral-50 px-4 text-sm transition-colors focus-visible:border-brand-primary focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-brand-soft";
+  const fieldError = "border-red-300 bg-red-50/60";
+  const labelBase = "mb-1.5 block text-xs font-semibold uppercase tracking-wide text-neutral-500";
+
   return (
-    <form onSubmit={handleSubmit} className="mx-auto grid w-full max-w-5xl gap-8 px-4 py-8 lg:grid-cols-[1fr_360px]">
-      <div className="space-y-6">
-        {!isOpen && (
-          <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
-            This restaurant is currently closed and can&apos;t accept orders right now.
-          </div>
-        )}
-
-        <div className="space-y-3">
-          <div>
-            <Label htmlFor="name" className="mb-1.5 block">
-              Name
-            </Label>
-            <Input
-              id="name"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Your full name"
-              className="h-12 rounded-xl"
-            />
-            {showValidation && errors.name && <p className="mt-1 text-xs text-red-500">Name is required</p>}
-          </div>
-
-          <div>
-            <Label htmlFor="phone" className="mb-1.5 block">
-              Phone
-            </Label>
-            <Input
-              id="phone"
-              type="tel"
-              value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="03XX XXXXXXX"
-              className="h-12 rounded-xl"
-            />
-            {showValidation && errors.phone && <p className="mt-1 text-xs text-red-500">Phone is required</p>}
-          </div>
-        </div>
-
-        <div>
-          <Label className="mb-2 block">Order type</Label>
-          <OrderTypeSelector
-            restaurant={restaurant}
-            deliveryAreas={deliveryAreas}
-            orderType={orderType}
-            deliveryAreaId={deliveryAreaId}
-            onOrderTypeChange={setOrderType}
-            onDeliveryAreaChange={setDeliveryAreaId}
-          />
-          {showValidation && errors.orderType && (
-            <p className="mt-1 text-xs text-red-500">Please select an order type</p>
-          )}
-          {showValidation && errors.deliveryArea && (
-            <p className="mt-1 text-xs text-red-500">Please select a delivery area</p>
-          )}
-          {showValidation && errors.belowMinimum && (
-            <p className="mt-1 text-xs text-red-500">
-              Minimum order for this area is {formatMinimum(minimumOrder)}
-            </p>
-          )}
-        </div>
-
-        {orderType === "DELIVERY" && (
-          <div>
-            <Label htmlFor="address" className="mb-1.5 block">
-              Delivery address
-            </Label>
-            <Input
-              id="address"
-              value={customerAddress}
-              onChange={(e) => setCustomerAddress(e.target.value)}
-              placeholder="House / street / area"
-              className="h-12 rounded-xl"
-            />
-            {showValidation && errors.address && <p className="mt-1 text-xs text-red-500">Address is required</p>}
-          </div>
-        )}
-
-        <div>
-          <Label className="mb-2 block">Payment method</Label>
-          <PaymentMethodSelector
-            available={availablePaymentMethods}
-            selected={paymentMethod}
-            onSelect={setPaymentMethod}
-          />
-          {showValidation && errors.paymentMethod && (
-            <p className="mt-1 text-xs text-red-500">Please select a payment method</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor="notes" className="mb-1.5 block">
-            Special notes (optional)
-          </Label>
-          <textarea
-            id="notes"
-            value={specialNotes}
-            onChange={(e) => setSpecialNotes(e.target.value)}
-            rows={3}
-            placeholder="Anything the kitchen should know..."
-            className="w-full resize-none rounded-lg border border-neutral-200 p-2.5 text-sm outline-none focus:border-orange-400"
-          />
-        </div>
+    <form onSubmit={handleSubmit} className="mx-auto w-full max-w-5xl px-4 pb-28 pt-2 sm:px-6 lg:pb-12">
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-neutral-500 transition-colors hover:text-brand-strong"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to menu
+        </Link>
+        <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-neutral-900 sm:text-3xl">
+          Checkout
+        </h1>
+        <p className="mt-1 text-sm text-neutral-500">
+          Review your order and tell us where it&apos;s going.
+        </p>
       </div>
 
-      <div className="space-y-4 lg:sticky lg:top-4 lg:self-start">
-        <OrderSummary restaurant={restaurant} deliveryAreas={deliveryAreas} />
-        <Button
-          type="submit"
-          disabled={isSubmitting || errors.closed}
-          className="h-14 w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 text-base font-semibold hover:bg-orange-600 disabled:opacity-50"
-        >
-          {isSubmitting && <Spinner className="size-4 text-white" />}
-          {isSubmitting ? "Placing order..." : "Place Order"}
-        </Button>
+      <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
+        <div className="space-y-4">
+          {!isOpen && (
+            <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>This restaurant is currently closed and can&apos;t accept orders right now.</span>
+            </div>
+          )}
+
+          {/* One card, one flow — fields separated by spacing, not by boxes. */}
+          <div className="space-y-6 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="name" className={labelBase}>
+                  Name
+                </Label>
+                <Input
+                  id="name"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  placeholder="Your full name"
+                  className={cn(fieldBase, showValidation && errors.name && fieldError)}
+                />
+                {showValidation && errors.name && <FieldError>Name is required</FieldError>}
+              </div>
+
+              <div>
+                <Label htmlFor="phone" className={labelBase}>
+                  Phone
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={customerPhone}
+                  onChange={(e) => setCustomerPhone(e.target.value)}
+                  placeholder="03XX XXXXXXX"
+                  className={cn(fieldBase, showValidation && errors.phone && fieldError)}
+                />
+                {showValidation && errors.phone && <FieldError>Phone is required</FieldError>}
+              </div>
+            </div>
+
+            <div>
+              <Label className={labelBase}>How would you like it?</Label>
+              <OrderTypeSelector
+                restaurant={restaurant}
+                deliveryAreas={deliveryAreas}
+                orderType={orderType}
+                deliveryAreaId={deliveryAreaId}
+                onOrderTypeChange={setOrderType}
+                onDeliveryAreaChange={setDeliveryAreaId}
+              />
+              {showValidation && errors.orderType && <FieldError>Please select an order type</FieldError>}
+              {showValidation && errors.deliveryArea && <FieldError>Please select a delivery area</FieldError>}
+              {showValidation && errors.belowMinimum && (
+                <FieldError>Minimum order for this area is {formatMinimum(minimumOrder)}</FieldError>
+              )}
+            </div>
+
+            {orderType === "DELIVERY" && (
+              <div>
+                <Label htmlFor="address" className={labelBase}>
+                  Delivery address
+                </Label>
+                <Input
+                  id="address"
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  placeholder="House / street / area"
+                  className={cn(fieldBase, showValidation && errors.address && fieldError)}
+                />
+                {showValidation && errors.address && <FieldError>Address is required</FieldError>}
+              </div>
+            )}
+
+            <div>
+              <Label className={labelBase}>Payment method</Label>
+              <PaymentMethodSelector
+                available={availablePaymentMethods}
+                selected={paymentMethod}
+                onSelect={setPaymentMethod}
+              />
+              {showValidation && errors.paymentMethod && (
+                <FieldError>Please select a payment method</FieldError>
+              )}
+            </div>
+
+            <div>
+              <Label htmlFor="notes" className={labelBase}>
+                Special notes <span className="normal-case text-neutral-400">(optional)</span>
+              </Label>
+              <textarea
+                id="notes"
+                value={specialNotes}
+                onChange={(e) => setSpecialNotes(e.target.value)}
+                rows={3}
+                placeholder="Anything the kitchen should know..."
+                className="w-full resize-none rounded-xl border border-neutral-200 bg-neutral-50 p-3.5 text-sm outline-none transition-colors placeholder:text-neutral-400 focus:border-brand-primary focus:bg-white focus:ring-4 focus:ring-brand-soft"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-3 lg:sticky lg:top-4 lg:self-start">
+          <OrderSummary restaurant={restaurant} deliveryAreas={deliveryAreas} />
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || errors.closed}
+            className="h-14 w-full items-center justify-center gap-2 rounded-2xl bg-brand-primary text-base font-semibold text-brand-secondary hover:bg-brand-hover disabled:opacity-50"
+          >
+            {isSubmitting && <Spinner className="size-4" />}
+            {isSubmitting ? "Placing order..." : "Place Order · " + formatMinimum(total)}
+          </Button>
+
+          <p className="flex items-center justify-center gap-1.5 text-center text-xs text-neutral-400">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            You&apos;ll get an order number to track it
+          </p>
+        </div>
       </div>
     </form>
+  );
+}
+
+function FieldError({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="mt-1.5 flex items-center gap-1 text-xs font-medium text-red-500">
+      <AlertCircle className="h-3 w-3 shrink-0" />
+      {children}
+    </p>
   );
 }
 
