@@ -23,6 +23,7 @@ import { getOrderById } from "@/lib/order";
 import { supabase } from "@/lib/supabase-client";
 import { OrderStatusTimeline } from "@/components/order/order-status";
 import { OrderItemsList } from "@/components/order/order-items";
+import { OrderSkeleton } from "@/components/order/order-skeleton";
 import { formatPrice } from "@/lib/utils";
 import type { OrderRecord } from "@/types/order";
 import type { OrderStatus, OrderType, PaymentMethod } from "@/types/api";
@@ -59,7 +60,6 @@ export default function OrderTrackingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Initial fetch
   useEffect(() => {
     let cancelled = false;
 
@@ -79,8 +79,6 @@ export default function OrderTrackingPage() {
     };
   }, [orderId]);
 
-  // Realtime subscription — listens directly to row UPDATEs on "orders",
-  // filtered to this one order, so we only react to changes that matter here.
   useEffect(() => {
     const channel = supabase
       .channel(`order-${orderId}`)
@@ -100,7 +98,7 @@ export default function OrderTrackingPage() {
   }, [orderId]);
 
   if (isLoading) {
-    return <div className="flex min-h-[50vh] items-center justify-center text-neutral-400">Loading order...</div>;
+    return <OrderSkeleton />;
   }
 
   if (error || !order) {
@@ -118,7 +116,6 @@ export default function OrderTrackingPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      {/* Success banner */}
       <div className="mb-6 flex flex-col items-center gap-3 rounded-3xl bg-green-700 px-6 py-9 text-center">
         <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white text-green-700">
           <Check className="h-8 w-8" strokeWidth={3} />
@@ -139,7 +136,6 @@ export default function OrderTrackingPage() {
         <OrderStatusTimeline status={order.status} />
       </div>
 
-      {/* Customer & order details */}
       <div className="mb-6 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         <div className="flex items-center gap-2.5 border-b border-neutral-200 bg-neutral-50 px-5 py-3.5">
           <User className="h-4 w-4 text-brand-primary" />
@@ -188,7 +184,6 @@ export default function OrderTrackingPage() {
         </dl>
       </div>
 
-      {/* Items */}
       <div className="mb-8 overflow-hidden rounded-2xl border border-neutral-200 bg-white">
         <div className="flex items-center gap-2.5 border-b border-neutral-200 bg-neutral-50 px-5 py-3.5">
           <Receipt className="h-4 w-4 text-brand-primary" />
@@ -240,7 +235,6 @@ export default function OrderTrackingPage() {
   );
 }
 
-/* One cell in the order-details grid. Two sit side by side; `full` spans the row. */
 function DetailRow({
   icon: Icon,
   label,

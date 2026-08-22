@@ -1,4 +1,3 @@
-// components/cart/cart-widget.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -27,8 +26,6 @@ interface CartWidgetProps {
 export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
   const router = useRouter();
 
-  // Open state now lives in the shared UI store, since the header button
-  // AND the floating bar both need to control the same drawer.
  const isOpen = useCartStore((s) => s.isOpen);
  const openCart = useCartStore((s) => s.openCart);
  const closeCart = useCartStore((s) => s.closeCart);

@@ -1,4 +1,3 @@
-// components/layout/header.tsx
 import Image from "next/image";
 import Link from "next/link";
 import { Phone } from "lucide-react";
@@ -26,14 +25,16 @@ export function Header({ restaurant, deliveryAreas }: HeaderProps) {
 
         <Link href="/" className="flex items-center gap-2 md:justify-center">
           {restaurant.logoUrl && (
-            <Image
-              src={restaurant.logoUrl}
-              alt={restaurant.name}
-              width={64}
-              height={64}
-              className="h-14 w-14 rounded-full object-cover ring-2 ring-brand-soft md:h-16 md:w-16"
-              priority
-            />
+            <div className="relative h-14 w-32 md:h-16 md:w-36">
+              <Image
+                src={restaurant.logoUrl}
+                alt={restaurant.name}
+                fill
+                sizes="144px"
+                className="object-contain"
+                priority
+              />
+            </div>
           )}
         </Link>
 

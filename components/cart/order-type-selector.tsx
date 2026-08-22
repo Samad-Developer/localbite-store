@@ -1,4 +1,3 @@
-// components/cart/order-type-selector.tsx
 "use client";
 
 import type { DeliveryArea, OrderType, Restaurant } from "@/types/api";
@@ -33,8 +32,6 @@ export function OrderTypeSelector({
   onOrderTypeChange,
   onDeliveryAreaChange,
 }: OrderTypeSelectorProps) {
-  // Only show modes this restaurant actually offers — driven by real
-  // settings, not hardcoded, since not every restaurant does delivery.
   const available: OrderType[] = [
     ...(restaurant.dineIn ? (["DINE_IN"] as const) : []),
     ...(restaurant.takeaway ? (["TAKEAWAY"] as const) : []),

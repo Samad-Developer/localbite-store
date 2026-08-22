@@ -1,8 +1,7 @@
-// components/menu/bestseller-card.tsx
 "use client";
 
 import Image from "next/image";
-import { Flame, Minus, Plus } from "lucide-react";
+import { Flame, Minus, Plus, TicketPercent } from "lucide-react";
 import type { MenuItem } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
 import { formatVariantDiscount } from "@/lib/pricing";
@@ -11,11 +10,9 @@ import { useItemCardActions } from "./use-item-card-actions";
 interface BestsellerCardProps {
   item: MenuItem;
   restaurantLogo: string | null;
-  onClick: () => void; // always means "open modal"
+  onClick: () => void;
 }
 
-// Same add-to-cart / open-modal behavior as ItemCard (via useItemCardActions),
-// just a large poster look for the popular-items rail.
 export function BestsellerCard({ item, restaurantLogo, onClick }: BestsellerCardProps) {
   const { defaultVariant, discount, totalQuantity, handleAddButtonClick, handleDecrement, handleIncrement } =
     useItemCardActions(item, onClick);
@@ -43,16 +40,16 @@ export function BestsellerCard({ item, restaurantLogo, onClick }: BestsellerCard
         />
       )}
 
-      {/* Bottom-up black fade so the name and price stay readable on any photo. */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
 
-      <span className="pointer-events-none absolute left-3 top-3 flex items-center gap-1 rounded-full bg-brand-primary px-2.5 py-1 text-[11px] font-bold text-brand-secondary shadow-sm">
+      <span className="pointer-events-none absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-primary shadow-sm ring-1 ring-black/5 backdrop-blur-md">
         <Flame className="h-3 w-3 fill-current" />
         Popular
       </span>
 
       {discount && (
-        <span className="discount-badge pointer-events-none absolute right-3 top-3 rounded-md bg-gradient-to-r from-rose-600 to-red-500 px-2 py-1 text-[10px] font-bold text-white shadow-md">
+        <span className="discount-badge pointer-events-none absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-brand-primary px-3 py-1.5 text-xs font-extrabold uppercase tracking-wider text-brand-secondary shadow-md ring-1 ring-black/5">
+          <TicketPercent className="h-4 w-4" strokeWidth={2.25} />
           {formatVariantDiscount(discount)}
         </span>
       )}
@@ -64,7 +61,6 @@ export function BestsellerCard({ item, restaurantLogo, onClick }: BestsellerCard
       )}
 
       <div className="absolute inset-x-0 bottom-0 flex flex-col gap-2 p-3 sm:flex-row sm:items-end sm:justify-between sm:p-4">
-        {/* Name + price, bottom-left over the image. */}
         <div className="min-w-0 sm:flex-1">
           <p className="truncate text-sm font-bold leading-tight text-white drop-shadow-sm sm:text-lg">
             {item.name}

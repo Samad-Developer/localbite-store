@@ -1,4 +1,3 @@
-// components/order/order-status.tsx
 import { Check, X, Receipt, CircleCheck, ChefHat, PackageCheck, PartyPopper, type LucideIcon } from "lucide-react";
 import type { OrderStatus } from "@/types/api";
 
@@ -35,7 +34,6 @@ export function OrderStatusTimeline({ status }: { status: OrderStatus }) {
 
         return (
           <div key={step.status} className="flex gap-3">
-            {/* Rail: icon bubble + connector line down to the next step */}
             <div className="flex flex-col items-center">
               <div className="relative shrink-0">
                 {isCurrent && <span className="absolute inset-0 animate-ping rounded-full bg-brand-primary opacity-60" />}

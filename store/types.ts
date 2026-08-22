@@ -1,4 +1,3 @@
-// store/types.ts
 export interface CartAddon {
   addonId: string;
   addonGroupId: string;

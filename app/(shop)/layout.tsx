@@ -1,4 +1,3 @@
-// app/(shop)/layout.tsx
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { CartFloatingBar } from "@/components/cart/cart-floating-bar";

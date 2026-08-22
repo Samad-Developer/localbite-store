@@ -1,4 +1,3 @@
-// components/menu/item-modal.tsx
 "use client";
 
 import { useMemo, useState } from "react";
@@ -36,14 +35,12 @@ interface ItemModalProps {
 
 export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModalProps) {
 
-  // default states
   const addItem = useCartStore((s) => s.addItem);
   const defaultVariant = useMemo(
     () => item?.variants.find((v) => v.isDefault) ?? item?.variants[0] ?? null,
     [item],
   );
 
-  // local states
   const [selectedVariant, setSelectedVariant] = useState<Variant | null>(defaultVariant);
   const [selectedAddons, setSelectedAddons] = useState<Record<string, string[]>>({});
   const [quantity, setQuantity] = useState(1);
@@ -51,9 +48,6 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
   const [showValidation, setShowValidation] = useState(false);
   const [lastItemId, setLastItemId] = useState<string | null>(null);
 
-  // Reset all local state whenever a DIFFERENT item is opened.
-  // Without this, closing item A and opening item B would keep item A's
-  // selected addons/quantity lingering in state — a real bug, not a style choice.
   if (item && item.id !== lastItemId) {
     setLastItemId(item.id);
     setSelectedVariant(item.variants.find((v) => v.isDefault) ?? item.variants[0] ?? null);
@@ -63,10 +57,8 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
     setShowValidation(false);
   }
 
-  // Guard against null item or variant
   if (!item || !selectedVariant) return null;
 
-  // Derived values ( filters and calculations )
   const unsatisfiedGroups = getUnsatisfiedRequiredGroups(selectedVariant.addonGroups, selectedAddons);
   const isValid = canAddToCart(selectedVariant.addonGroups, selectedAddons);
   const unitPrice = calculateUnitPrice(selectedVariant, selectedAddons);
@@ -74,13 +66,12 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
   const discount = getVariantDiscount(selectedVariant);
   const originalTotal = discount ? total + discount.amountOff * quantity : total;
 
-  // Fall back to the restaurant logo when the item has no photo, same as the cards do.
   const itemImageUrl = item.images[0]?.url ?? null;
   const imageSrc = itemImageUrl ?? restaurantLogo;
 
   function handleVariantChange(variant: Variant) {
     setSelectedVariant(variant);
-    setSelectedAddons({}); // different variant = different addon groups, so reset
+    setSelectedAddons({});
   }
 
   function handleAddonToggle(
@@ -130,9 +121,6 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
           <X className="h-4 w-4" />
         </button>
 
-        {/* LEFT — image only, shown whole: never cropped, never zoomed.
-            Mobile: full-bleed across the top. Desktop: own column, pinned to the top
-            so it lines up with the header instead of floating mid-panel. */}
         <div className="relative aspect-[16/10] w-full shrink-0 border-b border-neutral-200 sm:aspect-auto sm:w-5/12 sm:self-stretch sm:border-b-0 sm:border-r">
           {imageSrc ? (
             <Image
@@ -149,10 +137,7 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
           )}
         </div>
 
-        {/* RIGHT — fixed header (desktop only), scrolling middle, fixed footer */}
         <div className="flex min-h-0 w-full min-w-0 flex-col sm:w-7/12">
-          {/* Desktop header — a sibling of the scroll box, so the scrollbar never spans it.
-              Hidden on mobile, but kept in the DOM: the dialog is labelled by this title. */}
           <div className="hidden shrink-0 items-center justify-between gap-3 border-b border-neutral-200 px-5 py-4 sm:flex">
             <DialogHeader className="min-w-0 flex-1 p-0 text-left">
               <DialogTitle className="truncate text-lg font-bold text-neutral-900">
@@ -168,11 +153,8 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
             </button>
           </div>
 
-          {/* Scrolling middle — the only scrollable region */}
           <div className="custom-scroll min-h-0 flex-1 overflow-y-auto">
             <div className="space-y-5 px-5 py-4">
-              {/* Mobile title — scrolls with the content. aria-hidden because the
-                  DialogTitle above already names the dialog. */}
               <h2 aria-hidden className="text-lg font-bold text-neutral-900 sm:hidden">
                 {item.name}
               </h2>
@@ -224,7 +206,6 @@ export function ItemModal({ item, restaurantLogo, open, onOpenChange }: ItemModa
             </div>
           </div>
 
-          {/* Fixed footer — quantity at the start, Add to Cart taking the rest of the row */}
           <div className="shrink-0 border-t border-neutral-200 bg-white px-5 py-4">
             {discount && (
               <div className="mb-2.5 flex items-center justify-between text-xs">

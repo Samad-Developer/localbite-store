@@ -1,4 +1,3 @@
-// components/menu/banner-carousel.tsx
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -58,7 +57,6 @@ export function BannerCarousel({ images, restaurantName }: BannerCarouselProps) 
     };
   }, [api, updateHeight]);
 
-  // Recompute once an image's real aspect ratio comes in, and on viewport resize.
   useEffect(() => {
     updateHeight();
   }, [dimensions, updateHeight]);
@@ -76,7 +74,7 @@ export function BannerCarousel({ images, restaurantName }: BannerCarouselProps) 
   };
 
   return (
-    <div className="group relative w-full overflow-hidden rounded-xl bg-neutral-100 shadow-sm ring-1 ring-black/5">
+    <div className="group relative w-full overflow-hidden rounded-2xl bg-neutral-100 shadow-sm ring-1 ring-black/5">
       <Carousel
         setApi={setApi}
         opts={{ loop: true }}

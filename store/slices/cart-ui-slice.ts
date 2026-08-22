@@ -1,4 +1,3 @@
-// store/slices/cart-ui-slice.ts
 import type { StateCreator } from "zustand";
 import type { CartDataSlice } from "./cart-data-slice";
 

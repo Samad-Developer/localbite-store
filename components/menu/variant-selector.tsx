@@ -1,4 +1,3 @@
-// components/menu/variant-selector.tsx
 import type { Variant } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
 import { getVariantDiscount, formatVariantDiscount } from "@/lib/pricing";
@@ -10,7 +9,6 @@ interface VariantSelectorProps {
 }
 
 export function VariantSelector({ variants, selectedVariantId, onSelect }: VariantSelectorProps) {
-  // Rule from your spec: single default variant → don't even show a selector.
   if (variants.length <= 1) return null;
 
   return (

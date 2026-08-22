@@ -1,4 +1,3 @@
-// components/cart/cart-floating-bar.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -16,11 +15,8 @@ export function CartFloatingBar() {
   const totalItems = useCartTotalItems();
   const subtotal = useCartSubtotal();
 
-  // Same hydration-safety reasoning as the header badge: don't trust
-  // localStorage-derived values until the client has actually mounted.
   const displayCount = hasHydrated ? totalItems : 0;
 
-  // Nothing to show if the cart's empty, or the full drawer is already open.
   if (displayCount === 0 || isOpen) return null;
 
   return (

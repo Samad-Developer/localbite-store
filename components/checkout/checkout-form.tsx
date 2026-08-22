@@ -1,10 +1,9 @@
-// components/checkout/checkout-form.tsx
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, ShieldCheck, ShoppingBag } from "lucide-react";
+import { AlertCircle, ArrowLeft, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +12,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { OrderTypeSelector } from "@/components/cart/order-type-selector";
 import { PaymentMethodSelector } from "./payment-method-selector";
 import { OrderSummary } from "./order-summary";
-import { useCartStore, useCartSubtotal } from "@/store/cart-store";
+import { OrderSkeleton } from "@/components/order/order-skeleton";
+import { useCartStore, useCartSubtotal, useCartHasHydrated } from "@/store/cart-store";
 import { createOrder, ApiError } from "@/lib/api";
 import { getAvailablePaymentMethods, getDeliveryFee, getMinimumOrder } from "@/lib/pricing";
 import { cn, isRestaurantOpenNow } from "@/lib/utils";
@@ -42,6 +42,15 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
   const [specialNotes, setSpecialNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
+
+  const hasHydrated = useCartHasHydrated();
+
+  const cartIsEmpty = hasHydrated && items.length === 0 && !orderPlaced;
+
+  useEffect(() => {
+    if (cartIsEmpty) router.replace("/");
+  }, [cartIsEmpty, router]);
 
   const availablePaymentMethods = getAvailablePaymentMethods(restaurant);
   const deliveryFee = getDeliveryFee(orderType, deliveryAreaId, deliveryAreas, restaurant.deliveryFee);
@@ -49,9 +58,6 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
   const total = subtotal + deliveryFee;
   const isOpen = isRestaurantOpenNow(restaurant.isOpen, restaurant.operatingHours);
 
-  // Every rule that must pass before this order can be placed, named
-  // individually so the UI can tell the customer exactly what's missing
-  // instead of one generic "can't submit" state.
   const errors = {
     closed: !isOpen,
     emptyCart: items.length === 0,
@@ -109,32 +115,18 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
         items: buildOrderItems(),
       });
 
+      setOrderPlaced(true);
       clearCart();
       router.push(`/orders/${result.orderId}`);
     } catch (err) {
       const message = err instanceof ApiError ? err.message : "Could not place your order. Please try again.";
       toast.error(message);
-    } finally {
       setIsSubmitting(false);
     }
   }
 
-  if (items.length === 0) {
-    return (
-      <div className="mx-auto flex max-w-md flex-col items-center gap-4 px-4 py-24 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-neutral-100">
-          <ShoppingBag className="h-7 w-7 text-neutral-300" />
-        </div>
-        <p className="text-base font-semibold text-neutral-900">Your cart is empty</p>
-        <p className="text-sm text-neutral-500">Add a few items and come back to check out.</p>
-        <Link
-          href="/"
-          className="mt-2 inline-flex h-11 items-center rounded-xl bg-brand-primary px-5 text-sm font-semibold text-brand-secondary transition-colors hover:bg-brand-hover"
-        >
-          Browse the menu
-        </Link>
-      </div>
-    );
+  if (orderPlaced || !hasHydrated || items.length === 0) {
+    return <OrderSkeleton />;
   }
 
   const fieldBase =
@@ -169,7 +161,6 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
             </div>
           )}
 
-          {/* One card, one flow — fields separated by spacing, not by boxes. */}
           <div className="space-y-6 rounded-2xl border border-neutral-200 bg-white p-5 sm:p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>

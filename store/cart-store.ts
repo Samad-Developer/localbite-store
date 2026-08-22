@@ -1,4 +1,4 @@
-// store/cart-store.ts
+import { useSyncExternalStore } from "react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useShallow } from "zustand/react/shallow";
@@ -17,8 +17,6 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "localbite-cart",
-      // Only these fields get written to localStorage.
-      // isOpen is intentionally excluded — always starts false on reload.
       partialize: (state) => ({
         items: state.items,
         orderType: state.orderType,
@@ -28,7 +26,13 @@ export const useCartStore = create<CartStore>()(
   )
 );
 
-// ---------- Derived selectors (never stored, always computed) ----------
+export function useCartHasHydrated(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => useCartStore.persist.onFinishHydration(onStoreChange),
+    () => useCartStore.persist.hasHydrated(),
+    () => false
+  );
+}
 
 export function useCartSubtotal(): number {
   return useCartStore((state) => state.items.reduce((sum, i) => sum + i.itemTotal, 0));

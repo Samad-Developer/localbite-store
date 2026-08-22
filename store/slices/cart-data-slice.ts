@@ -1,4 +1,3 @@
-// store/slices/cart-data-slice.ts
 import type { StateCreator } from "zustand";
 import type { OrderType } from "@/types/api";
 import type { CartItem, NewCartItem } from "../types";
@@ -30,9 +29,6 @@ export interface CartDataSlice {
   setDeliveryAreaId: (id: string | null) => void;
 }
 
-// StateCreator<FullStore, [], [], ThisSlice> — the first type param is the
-// COMBINED store (data + UI), so `get()` inside this slice can see UI state
-// too if it ever needed to. We only implement CartDataSlice's own fields here.
 export const createCartDataSlice: StateCreator <
   CartDataSlice & CartUISlice,
   [],

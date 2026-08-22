@@ -1,4 +1,3 @@
-// app/checkout/page.tsx
 import { getRestaurant, getMenu } from "@/lib/api";
 import { CheckoutForm } from "@/components/checkout/checkout-form";
 

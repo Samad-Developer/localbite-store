@@ -1,4 +1,3 @@
-// components/checkout/payment-method-selector.tsx
 "use client";
 
 import type { PaymentMethod } from "@/types/api";
@@ -55,7 +54,6 @@ export function PaymentMethodSelector({ available, selected, onSelect }: Payment
               <span className="block text-xs text-neutral-500">{hint}</span>
             </span>
 
-            {/* Radio-style tick so the chosen method is unmistakable */}
             <span
               className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
                 isSelected

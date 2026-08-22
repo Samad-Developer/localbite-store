@@ -1,4 +1,3 @@
-// lib/api.ts
 import { env } from "./env";
 import type { Restaurant, MenuResponse, CreateOrderPayload, CreateOrderResponse } from "@/types/api";
 
@@ -16,56 +15,50 @@ export class ApiError extends Error {
   }
 }
 
-interface FetchOptions extends RequestInit {
-  revalidate?: number;
+function isFrameworkControlFlowError(error: unknown): boolean {
+  return typeof (error as { digest?: unknown } | null)?.digest === "string";
 }
 
-async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
-  const { revalidate, ...fetchOptions } = options;
+async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
 
   let res: Response;
   try {
     res = await fetch(url, {
-      ...fetchOptions,
+      ...options,
       headers: {
         "Content-Type": "application/json",
-        ...fetchOptions.headers,
+        ...options.headers,
       },
-      next: revalidate !== undefined ? { revalidate } : undefined,
     });
-  } catch {
-    // Network-level failure — admin panel unreachable, DNS issue, etc.
+  } catch (error) {
+    if (isFrameworkControlFlowError(error)) throw error;
     throw new ApiError("Could not reach the restaurant server. Please try again.", 0, endpoint);
   }
 
-// lib/api.ts — temporary debug line, remove once fixed
-if (!res.ok) {
-  let message = `Request failed with status ${res.status}`;
-  try {
-    const body = await res.json();
-    if (body?.message) message = body.message;
-  } catch {
-    // response wasn't JSON — keep the generic message
+  if (!res.ok) {
+    let message = `Request failed with status ${res.status}`;
+    try {
+      const body = await res.json();
+      if (body?.message) message = body.message;
+    } catch {
+    }
+    console.error("API FAILURE:", { endpoint, status: res.status, url });
+    throw new ApiError(message, res.status, endpoint);
   }
-  console.error("API FAILURE:", { endpoint, status: res.status, url }); // ← add this
-  throw new ApiError(message, res.status, endpoint);
-}
 
   return res.json() as Promise<T>;
 }
 
-// ---------- Public API functions ----------
-
 export function getRestaurant(): Promise<Restaurant> {
   return apiFetch<Restaurant>(`/api/v1/restaurant/${RESTAURANT_ID}`, {
-    revalidate: 3600, // 1 hour, per your spec
+    cache: "no-store",
   });
 }
 
 export function getMenu(): Promise<MenuResponse> {
   return apiFetch<MenuResponse>(`/api/v1/menu/${RESTAURANT_ID}`, {
-    revalidate: 300, // 5 minutes, per your spec
+    cache: "no-store",
   });
 }
 
@@ -73,6 +66,6 @@ export function createOrder(payload: CreateOrderPayload): Promise<CreateOrderRes
   return apiFetch<CreateOrderResponse>(`/api/v1/orders`, {
     method: "POST",
     body: JSON.stringify(payload),
-    cache: "no-store", // orders must never be cached
+    cache: "no-store",
   });
 }

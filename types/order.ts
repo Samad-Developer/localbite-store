@@ -1,4 +1,3 @@
-// types/order.ts
 import type { OrderType, OrderStatus, PaymentMethod } from "./api";
 
 export interface OrderItemAddonRecord {

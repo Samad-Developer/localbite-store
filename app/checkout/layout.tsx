@@ -1,4 +1,3 @@
-// app/checkout/layout.tsx
 import Image from "next/image";
 import Link from "next/link";
 import { getRestaurant } from "@/lib/api";
@@ -12,14 +11,16 @@ export default async function CheckoutLayout({ children }: { children: React.Rea
       <div className="flex justify-center py-6">
         <Link href="/">
           {restaurant.logoUrl && (
-            <Image
-              src={restaurant.logoUrl}
-              alt={restaurant.name}
-              width={64}
-              height={64}
-              className="h-14 w-14 rounded-full object-cover ring-2 ring-brand-soft"
-              priority
-            />
+            <div className="relative h-14 w-32">
+              <Image
+                src={restaurant.logoUrl}
+                alt={restaurant.name}
+                fill
+                sizes="128px"
+                className="object-contain"
+                priority
+              />
+            </div>
           )}
         </Link>
       </div>

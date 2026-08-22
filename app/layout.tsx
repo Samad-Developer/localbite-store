@@ -1,11 +1,9 @@
-// app/layout.tsx
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import { getRestaurant } from "@/lib/api";
 import "./globals.css";
 
-// Self-hosted by next/font — no external request, no layout shift.
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],

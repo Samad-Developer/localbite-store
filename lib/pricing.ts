@@ -1,10 +1,6 @@
 import type { Variant, AddonGroup } from "@/types/api";
 import type { DeliveryArea, OrderType } from "@/types/api";
 
-/**
- * Flattens the selected-addons map into actual Addon objects with prices,
- * by looking them up against the variant's addon groups.
- */
 export function getSelectedAddonDetails(
   variant: Variant,
   selectedAddons: Record<string, string[]>
@@ -27,11 +23,6 @@ export function getSelectedAddonDetails(
   return result;
 }
 
-/**
- * Total price for ONE unit (variant + its selected addons) — quantity
- * is applied separately by the caller, since "per-unit price" and
- * "total for N units" are genuinely different questions.
- */
 export function calculateUnitPrice(variant: Variant, selectedAddons: Record<string, string[]>): number {
   const addonsTotal = getSelectedAddonDetails(variant, selectedAddons).reduce(
     (sum, a) => sum + a.price,
@@ -40,11 +31,6 @@ export function calculateUnitPrice(variant: Variant, selectedAddons: Record<stri
   return variant.finalPrice + addonsTotal;
 }
 
-/**
- * Which required addon groups are NOT yet satisfied.
- * Returns an array of group IDs so the UI can highlight exactly
- * which sections are blocking submission — not just a yes/no.
- */
 export function getUnsatisfiedRequiredGroups(
   addonGroups: AddonGroup[],
   selectedAddons: Record<string, string[]>
@@ -62,10 +48,6 @@ export function canAddToCart(addonGroups: AddonGroup[], selectedAddons: Record<s
   return getUnsatisfiedRequiredGroups(addonGroups, selectedAddons).length === 0;
 }
 
-/**
- * Enforces isMultiple / maxSelections rules when the user clicks an addon.
- * Returns the NEW selection array for that one group — pure, no side effects.
- */
 export function toggleAddonSelection(
   group: AddonGroup,
   currentSelection: string[],
@@ -73,18 +55,16 @@ export function toggleAddonSelection(
 ): string[] {
   const isSelected = currentSelection.includes(addonId);
 
-  // Radio behavior — single-select group
   if (!group.isMultiple) {
     return isSelected ? [] : [addonId];
   }
 
-  // Checkbox behavior — multi-select group
   if (isSelected) {
     return currentSelection.filter((id) => id !== addonId);
   }
 
   if (group.maxSelections !== null && currentSelection.length >= group.maxSelections) {
-    return currentSelection; // at max, ignore the click — no-op
+    return currentSelection;
   }
 
   return [...currentSelection, addonId];
@@ -118,7 +98,6 @@ export function getMinimumOrder(
   return area ? area.minimumOrder : fallbackMinimum;
 }
 
-// lib/pricing.ts — add this function
 import type { Restaurant, PaymentMethod } from "@/types/api";
 import type { CartItem } from "@/store/types";
 
@@ -135,11 +114,6 @@ export interface VariantDiscount {
   percentOff: number;
 }
 
-/**
- * A variant counts as discounted whenever its own finalPrice is below its
- * own price — checked per variant so every variant carries its own
- * discount instead of only whichever one happens to be isDefault.
- */
 export function getVariantDiscount(variant: Variant): VariantDiscount | null {
   if (variant.finalPrice >= variant.price) return null;
   const amountOff = variant.price - variant.finalPrice;

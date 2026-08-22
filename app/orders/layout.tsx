@@ -1,4 +1,3 @@
-// app/orders/layout.tsx
 import { getRestaurant } from "@/lib/api";
 import { Footer } from "@/components/layout/footer";
 

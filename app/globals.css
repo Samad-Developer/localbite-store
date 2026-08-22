@@ -5,7 +5,6 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Brand palette — see the two knobs in :root below */
   --color-brand-primary: var(--brand-primary);
   --color-brand-secondary: var(--brand-secondary);
   --color-brand-hover: var(--brand-hover);
@@ -57,14 +56,9 @@
 }
 
 :root {
-  /* ==========================================================
-     BRAND — the only two colors you need to change.
-     Everything else on the site is derived from these.
-     ========================================================== */
-  --brand-primary: oklch(0.705 0.213 47.604); /* brand color: buttons, nav bar, accents */
-  --brand-secondary: oklch(1 0 0); /* contrast color: text/icons sitting on the brand */
+  --brand-primary: #d71712;
+  --brand-secondary: oklch(1 0 0);
 
-  /* Derived automatically from --brand-primary — do not edit by hand. */
   --brand-hover: color-mix(in oklab, var(--brand-primary) 85%, black);
   --brand-strong: color-mix(in oklab, var(--brand-primary) 74%, black);
   --brand-muted: color-mix(in oklab, var(--brand-primary) 35%, white);
@@ -150,8 +144,6 @@
   }
 }
 
-/* app/globals.css — add at the bottom */
-
 .custom-scroll {
   scrollbar-width: thin;
   scrollbar-color: #d4d4d4 transparent;
@@ -170,7 +162,6 @@
   background-color: #a3a3a3;
 }
 
-/* Footer credit — slow colour sweep across the name. */
 .credit-name {
   background-size: 220% auto;
   animation: credit-sweep 6s ease-in-out infinite;
@@ -193,6 +184,8 @@
 .discount-badge {
   position: relative;
   overflow: hidden;
+  transform-origin: center;
+  animation: discount-pop 2.6s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
 }
 .discount-badge::after {
   content: "";
@@ -213,5 +206,32 @@
   }
   100% {
     transform: translateX(250%) skewX(-20deg);
+  }
+}
+
+@keyframes discount-pop {
+  0%,
+  70%,
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+  78% {
+    transform: scale(1.12) rotate(-2.5deg);
+  }
+  86% {
+    transform: scale(1.06) rotate(2deg);
+  }
+  94% {
+    transform: scale(1.09) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .discount-badge {
+    animation: none;
+  }
+  .discount-badge::after {
+    animation: none;
+    opacity: 0;
   }
 }

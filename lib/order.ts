@@ -1,12 +1,6 @@
-// lib/orders.ts
 import { supabase } from "./supabase-client";
 import type { OrderRecord } from "@/types/order";
 
-// Exact casing matters — "orders" is lowercase because Order has @@map("orders"),
-// but OrderItem/OrderItemVariant/OrderItemAddon/MenuItem have NO @@map, so Prisma
-// created them with their literal Pascal-case names. Postgres treats quoted
-// mixed-case identifiers as case-sensitive, and PostgREST/Supabase requires an
-// exact match — get this wrong and you'll get a silent "relation not found" error.
 const ORDER_SELECT = `
   id,
   orderNumber,

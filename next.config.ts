@@ -1,4 +1,3 @@
-// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -6,11 +5,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**", // TODO: narrow this once you confirm your image host
+        hostname: "**",
       },
     ],
-        qualities: [75, 90], // add this line
-
+    qualities: [75, 90],
+  },
+  experimental: {
+    serverComponentsHmrCache: false,
   },
 };
 

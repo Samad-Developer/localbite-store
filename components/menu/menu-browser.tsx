@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Search, Flame, X } from "lucide-react";
+import { Search, Sparkles, X } from "lucide-react";
 import type { Category, MenuItem } from "@/types/api";
 import { ItemCard } from "./item-card";
 import { BestsellerCard } from "./bestseller-card";
@@ -37,9 +37,6 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
     [categories],
   );
 
-  // The bar only earns its border once it has actually stuck to the top.
-  // A zero-height sentinel sits directly above it: the moment the sentinel
-  // scrolls out of view, the bar is pinned.
   useEffect(() => {
     const el = sentinelRef.current;
     if (!el) {
@@ -80,7 +77,6 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
 
   return (
     <div>
-      {/* Sticky category tabs — full-bleed bar, but inner content aligned to the same container width as everything else */}
       {!isSearching && (
         <>
         <div ref={sentinelRef} aria-hidden className="h-px w-full" />
@@ -110,7 +106,6 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
         </>
       )}
 
-      {/* Everything below shares one consistent centered container */}
       <div className="mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="py-4">
           <div className="group flex h-12 items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 transition-colors focus-within:border-brand-primary focus-within:bg-white focus-within:ring-4 focus-within:ring-brand-soft">
@@ -137,9 +132,18 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
 
         {!isSearching && bestsellerItems.length > 0 && (
           <div className="py-4">
-            <div className="mb-3 flex items-center gap-2">
-              <Flame className="h-5 w-5 fill-brand-primary text-brand-primary" />
-              <h2 className="text-lg font-bold text-neutral-900">Customer Favorites</h2>
+            <div className="mb-4 flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary ring-1 ring-brand-primary/15">
+                <Sparkles className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-xl font-extrabold tracking-tight text-neutral-900 sm:text-2xl">
+                  Popular Picks
+                </h2>
+                <p className="text-xs font-medium text-neutral-500">
+                  What people order the most
+                </p>
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {bestsellerItems.map((item) => (
@@ -183,22 +187,10 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
               }}
               className="py-6"
             >
-              {/* Category header — classic menu-card treatment: rule with a diamond, uppercase name */}
-              <div className="mb-8 flex flex-col items-center gap-2.5 text-center">
-                <div className="flex items-center gap-3">
-                  <span className="h-px w-10 bg-neutral-300 sm:w-16" />
-                  <span className="h-1.5 w-1.5 rotate-45 bg-brand-primary" />
-                  <span className="h-px w-10 bg-neutral-300 sm:w-16" />
-                </div>
-
-                <h2 className="text-2xl font-bold uppercase tracking-[0.18em] text-neutral-900 sm:text-4xl">
+              <div className="mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-brand-primary to-brand-hover px-6 py-7 text-center shadow-md sm:px-10 sm:py-14">
+                <h2 className="text-3xl font-extrabold uppercase leading-tight tracking-[0.16em] text-brand-secondary sm:text-5xl">
                   {cat.name}
                 </h2>
-
-                <span className="text-[11px] font-medium uppercase tracking-[0.12em] text-neutral-400">
-                  {cat.menuItems.length} item
-                  {cat.menuItems.length !== 1 ? "s" : ""}
-                </span>
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">

@@ -1,4 +1,3 @@
-// components/layout/footer.tsx
 import Image from "next/image";
 import { ArrowUpRight, Bike, Clock, MapPin, Phone, Timer, Wallet } from "lucide-react";
 import type { OperatingHour, Restaurant } from "@/types/api";
@@ -6,13 +5,11 @@ import { formatPrice } from "@/lib/utils";
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-// Site credit — change the name or URL here.
 const CREDIT = {
   name: "Samad",
   url: "https://samad-site.vercel.app/",
 };
 
-// The API sends 0 = Monday, but JS getDay() is 0 = Sunday.
 function todayIndex() {
   return (new Date().getDay() + 6) % 7;
 }
@@ -44,24 +41,24 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
   const today = todayIndex();
 
   return (
-    <footer className="mt-12 bg-neutral-900 text-neutral-300">
+    <footer className="mt-12 border-t border-neutral-200 bg-white text-neutral-600">
       <div className="mx-auto w-full max-w-6xl px-4 pb-28 pt-14 sm:px-6 sm:pb-14 lg:px-8">
-        {/* Info panels — the brand block lives inside the first one */}
         <div className="grid gap-4 md:grid-cols-3">
-          {/* Brand + contact */}
-          <section className="rounded-2xl bg-neutral-800/50 p-5">
+          <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
             <div className="flex items-center gap-3">
               {restaurant.logoUrl && (
-                <Image
-                  src={restaurant.logoUrl}
-                  alt={restaurant.name}
-                  width={64}
-                  height={64}
-                  className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-brand-primary/50"
-                />
+                <div className="relative h-14 w-28 shrink-0">
+                  <Image
+                    src={restaurant.logoUrl}
+                    alt={restaurant.name}
+                    fill
+                    sizes="112px"
+                    className="object-contain object-left"
+                  />
+                </div>
               )}
               <div className="min-w-0">
-                <p className="truncate text-lg font-extrabold tracking-tight text-white">
+                <p className="text-lg font-extrabold tracking-tight text-neutral-900">
                   {restaurant.name}
                 </p>
                 {restaurant.cuisineType && (
@@ -72,24 +69,24 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
               </div>
             </div>
 
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-neutral-800 px-3 py-1 text-xs font-semibold text-neutral-200">
+            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700">
               <span
                 className={`h-1.5 w-1.5 rounded-full ${
-                  restaurant.isOpen ? "bg-emerald-400" : "bg-red-400"
+                  restaurant.isOpen ? "bg-emerald-500" : "bg-red-500"
                 }`}
               />
               {restaurant.isOpen ? "Open now" : "Currently closed"}
             </span>
 
             {restaurant.description && (
-              <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+              <p className="mt-4 text-sm leading-relaxed text-neutral-600">
                 {restaurant.description}
               </p>
             )}
 
-            <ul className="mt-4 space-y-2.5 border-t border-neutral-700/60 pt-4 text-sm">
+            <ul className="mt-4 space-y-2.5 border-t border-neutral-200 pt-4 text-sm">
               {restaurant.address && (
-                <li className="flex items-start gap-2.5 text-neutral-400">
+                <li className="flex items-start gap-2.5 text-neutral-600">
                   <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" />
                   <span>
                     {restaurant.address}
@@ -100,7 +97,7 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
               <li>
                 <a
                   href={`tel:${restaurant.phone}`}
-                  className="inline-flex items-center gap-2.5 font-semibold text-neutral-100 underline-offset-4 transition-colors hover:text-brand-primary hover:underline"
+                  className="inline-flex items-center gap-2.5 font-semibold text-neutral-900 underline-offset-4 transition-colors hover:text-brand-primary hover:underline"
                 >
                   <Phone className="h-4 w-4 shrink-0 text-brand-primary" />
                   {restaurant.phone}
@@ -109,8 +106,7 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
             </ul>
           </section>
 
-          {/* Hours */}
-          <section className="rounded-2xl bg-neutral-800/50 p-5">
+          <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
             <h3 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-primary">
               <Clock className="h-3.5 w-3.5" />
               Opening hours
@@ -124,12 +120,12 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
                       key={h.day}
                       className={`flex items-center justify-between gap-3 rounded-md px-2 py-1 ${
                         isToday
-                          ? "bg-brand-primary/15 font-semibold text-white"
-                          : "text-neutral-400"
+                          ? "bg-brand-primary/10 font-semibold text-neutral-900"
+                          : "text-neutral-600"
                       }`}
                     >
                       <span>{DAY_NAMES[h.day] ?? `Day ${h.day}`}</span>
-                      <span className={h.isOpen ? "" : "text-neutral-500"}>
+                      <span className={h.isOpen ? "" : "text-neutral-400"}>
                         {h.isOpen
                           ? `${formatTime(h.openTime)} – ${formatTime(h.closeTime)}`
                           : "Closed"}
@@ -143,13 +139,12 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
             )}
           </section>
 
-          {/* Ordering */}
-          <section className="rounded-2xl bg-neutral-800/50 p-5">
+          <section className="rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
             <h3 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-primary">
               <Bike className="h-3.5 w-3.5" />
               Ordering
             </h3>
-            <ul className="mt-4 space-y-3 text-sm text-neutral-400">
+            <ul className="mt-4 space-y-3 text-sm text-neutral-600">
               <li className="flex items-center gap-2.5">
                 <Timer className="h-4 w-4 shrink-0 text-brand-primary" />~
                 {restaurant.estimatedTime} min prep
@@ -175,7 +170,7 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
                 {services.map((s) => (
                   <span
                     key={s}
-                    className="rounded-full bg-neutral-700/60 px-2.5 py-1 text-[11px] font-semibold text-neutral-200"
+                    className="rounded-full border border-neutral-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-neutral-700"
                   >
                     {s}
                   </span>
@@ -189,7 +184,7 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
           </section>
         </div>
 
-        <div className="mt-10 flex flex-col items-center gap-2 text-xs text-neutral-500 sm:flex-row sm:justify-between">
+        <div className="mt-10 flex flex-col items-center gap-2 border-t border-neutral-200 pt-6 text-xs text-neutral-500 sm:flex-row sm:justify-between">
           <p>
             &copy; {new Date().getFullYear()} {restaurant.name}. All rights reserved.
           </p>
@@ -201,10 +196,10 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-1 text-sm font-extrabold tracking-tight transition-transform hover:scale-105"
             >
-              <span className="credit-name bg-gradient-to-r from-brand-primary via-rose-400 to-amber-300 bg-clip-text text-transparent">
+              <span className="credit-name bg-gradient-to-r from-brand-primary via-rose-500 to-amber-500 bg-clip-text text-transparent">
                 {CREDIT.name}
               </span>
-              <ArrowUpRight className="h-3.5 w-3.5 text-neutral-600 transition-colors group-hover:text-brand-primary" />
+              <ArrowUpRight className="h-3.5 w-3.5 text-neutral-400 transition-colors group-hover:text-brand-primary" />
             </a>
           </p>
         </div>

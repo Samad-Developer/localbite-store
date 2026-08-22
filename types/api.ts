@@ -1,8 +1,8 @@
 export interface OperatingHour {
-  day: number; // 0=Monday ... 6=Sunday
+  day: number;
   isOpen: boolean;
-  openTime: string; // "09:00"
-  closeTime: string; // "22:00"
+  openTime: string;
+  closeTime: string;
 }
 
 export interface CoverImage {

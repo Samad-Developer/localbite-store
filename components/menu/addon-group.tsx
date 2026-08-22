@@ -1,4 +1,3 @@
-// components/menu/addon-group.tsx
 import type { AddonGroup as AddonGroupType } from "@/types/api";
 import { formatPrice } from "@/lib/utils";
 import { Asterisk, Check } from "lucide-react";

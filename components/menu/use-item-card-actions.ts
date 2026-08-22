@@ -1,4 +1,3 @@
-// components/menu/use-item-card-actions.ts
 import type { MenuItem } from "@/types/api";
 import { isSimpleItem, getVariantDiscount } from "@/lib/pricing";
 import { useCartLinesForItem, useCartStore } from "@/store/cart-store";
@@ -7,11 +6,6 @@ const SPICY_COUNT: Record<MenuItem["spicyLevel"], number> = {
   NONE: 0, MILD: 1, MEDIUM: 2, HOT: 3,
 };
 
-/**
- * Shared cart-interaction logic for any menu-item card style (grid card,
- * bestseller card, ...). Every card variant renders this the same way —
- * only the markup differs.
- */
 export function useItemCardActions(item: MenuItem, onClick: () => void) {
   const defaultVariant = item.variants.find((v) => v.isDefault) ?? item.variants[0];
   const spicyCount = SPICY_COUNT[item.spicyLevel];
@@ -23,7 +17,6 @@ export function useItemCardActions(item: MenuItem, onClick: () => void) {
   const totalQuantity = lines.reduce((sum, l) => sum + l.quantity, 0);
   const targetLine = lines[lines.length - 1];
 
-  // Nothing to configure = single variant, zero addon groups.
   const canQuickAdd = isSimpleItem(item);
 
   function handleQuickAdd(e: React.MouseEvent) {
@@ -43,7 +36,6 @@ export function useItemCardActions(item: MenuItem, onClick: () => void) {
     });
   }
 
-  // The Add button: quick-add if nothing to configure, otherwise open the modal.
   function handleAddButtonClick(e: React.MouseEvent) {
     e.stopPropagation();
     if (canQuickAdd) {
@@ -65,7 +57,7 @@ export function useItemCardActions(item: MenuItem, onClick: () => void) {
     } else if (canQuickAdd) {
       handleQuickAdd(e);
     } else {
-      onClick(); // complex item — a new unit needs its own customization
+      onClick();
     }
   }
 

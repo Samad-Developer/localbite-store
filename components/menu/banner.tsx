@@ -12,7 +12,6 @@ export function Banner({ images, restaurantName }: { images: CoverImage[]; resta
   return (
     <div className="w-full overflow-hidden rounded-xl">
 
-      {/* Real image, fully visible, nothing cropped */}
             <img src={primary.url} alt={restaurantName} className="block h-auto w-full" />
 
     </div>

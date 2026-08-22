@@ -1,4 +1,3 @@
-// components/checkout/order-summary.tsx
 "use client";
 
 import { Receipt, Tag } from "lucide-react";
@@ -54,7 +53,6 @@ export function OrderSummary({ restaurant, deliveryAreas }: OrderSummaryProps) {
                     <p className="truncate text-xs text-neutral-400">{item.variantName}</p>
                   )}
 
-                  {/* Chosen addons, with what each one added to the price. */}
                   {item.selectedAddons.length > 0 && (
                     <ul className="mt-1.5 space-y-0.5 border-l-2 border-neutral-100 pl-2.5">
                       {item.selectedAddons.map((addon) => (

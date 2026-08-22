@@ -1,4 +1,3 @@
-// app/page.tsx
 import { getRestaurant, getMenu } from "@/lib/api";
 import { Banner } from "@/components/menu/banner";
 import { MenuBrowser } from "@/components/menu/menu-browser";

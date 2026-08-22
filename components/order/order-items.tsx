@@ -1,4 +1,3 @@
-// components/order/order-items.tsx
 import type { OrderItemRecord } from "@/types/order";
 import { formatPrice } from "@/lib/utils";
 
