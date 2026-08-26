@@ -1,16 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { ShoppingCart } from "lucide-react";
-import { useCartStore, useCartSubtotal, useCartTotalItems } from "@/store/cart-store";
+import { useCartHasHydrated, useCartStore, useCartSubtotal, useCartTotalItems } from "@/store/cart-store";
 import { formatPrice } from "@/lib/utils";
 
 export function CartFloatingBar() {
   const isOpen = useCartStore((s) => s.isOpen);
   const openCart = useCartStore((s) => s.openCart);
 
-  const [hasHydrated, setHasHydrated] = useState(false);
-  useEffect(() => setHasHydrated(true), []);
+  const hasHydrated = useCartHasHydrated();
 
   const totalItems = useCartTotalItems();
   const subtotal = useCartSubtotal();

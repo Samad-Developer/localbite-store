@@ -98,7 +98,8 @@ export interface DeliveryArea {
   id: string;
   name: string;
   deliveryFee: number;
-  minimumOrder: number;
+  /** Not returned by the admin API today — fall back to the restaurant minimum. */
+  minimumOrder?: number;
 }
 
 export interface MenuResponse {
@@ -145,9 +146,43 @@ export interface CreateOrderPayload {
   items: OrderItemPayload[];
 }
 
+export interface OrderPricing {
+  /** True when the server's price differed from what the client submitted. */
+  repriced: boolean;
+  subtotal: number;
+  deliveryFee: number;
+  discount: number;
+  total: number;
+  items: {
+    menuItemId: string;
+    variantId: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
+}
+
 export interface CreateOrderResponse {
   success: boolean;
   orderId: string;
   orderNumber: number;
   message: string;
+  /** Absent until the admin panel ships server-side pricing. */
+  pricing?: OrderPricing;
+}
+
+export type OrderRejectionCode =
+  | "ITEMS_UNAVAILABLE"
+  | "RESTAURANT_CLOSED"
+  | "BELOW_MINIMUM"
+  | "DELIVERY_AREA_INVALID"
+  | "ORDER_TYPE_UNAVAILABLE"
+  | "PAYMENT_METHOD_UNAVAILABLE";
+
+export interface OrderRejection {
+  error: "ORDER_REJECTED";
+  code: OrderRejectionCode;
+  message: string;
+  problems?: { menuItemId: string; variantId: string; addonId: string | null; reason: string }[];
+  context?: { minimumOrder: number; subtotal: number };
 }

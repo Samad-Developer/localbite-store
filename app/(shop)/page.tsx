@@ -1,15 +1,10 @@
 import { getRestaurant, getMenu } from "@/lib/api";
 import { Banner } from "@/components/menu/banner";
 import { MenuBrowser } from "@/components/menu/menu-browser";
-import { Footer } from "@/components/layout/footer";
-import { isRestaurantOpenNow } from "@/lib/utils";
+import { ClosedBanner } from "@/components/restaurant/closed-banner";
 
 export default async function HomePage() {
   const [restaurant, menu] = await Promise.all([getRestaurant(), getMenu()]);
-  const isOpen = isRestaurantOpenNow(
-    restaurant.isOpen,
-    restaurant.operatingHours,
-  );
 
   return (
     <>
@@ -20,11 +15,7 @@ export default async function HomePage() {
         />
       </div>
 
-      {!isOpen && (
-        <div className="bg-neutral-900 px-4 py-2 text-center text-sm text-white">
-          Currently closed &middot; browsing only
-        </div>
-      )}
+      <ClosedBanner />
 
       <MenuBrowser categories={menu.categories} restaurantLogo={restaurant.logoUrl} />
     </>

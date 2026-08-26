@@ -8,7 +8,9 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public status: number,
-    public endpoint: string
+    public endpoint: string,
+    /** Parsed error body, when the server sent one (e.g. a 409 rejection). */
+    public payload?: unknown
   ) {
     super(message);
     this.name = "ApiError";
@@ -38,13 +40,15 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
 
   if (!res.ok) {
     let message = `Request failed with status ${res.status}`;
+    let payload: unknown;
     try {
-      const body = await res.json();
+      payload = await res.json();
+      const body = payload as { message?: string } | null;
       if (body?.message) message = body.message;
     } catch {
     }
     console.error("API FAILURE:", { endpoint, status: res.status, url });
-    throw new ApiError(message, res.status, endpoint);
+    throw new ApiError(message, res.status, endpoint, payload);
   }
 
   return res.json() as Promise<T>;

@@ -13,11 +13,18 @@ import { OrderTypeSelector } from "@/components/cart/order-type-selector";
 import { PaymentMethodSelector } from "./payment-method-selector";
 import { OrderSummary } from "./order-summary";
 import { OrderSkeleton } from "@/components/order/order-skeleton";
-import { useCartStore, useCartSubtotal, useCartHasHydrated } from "@/store/cart-store";
-import { createOrder, ApiError } from "@/lib/api";
+import { useCartStore, useCartSubtotal, useCartHasHydrated, type CartItem } from "@/store/cart-store";
+import { createOrder, getMenu, ApiError } from "@/lib/api";
 import { getAvailablePaymentMethods, getDeliveryFee, getMinimumOrder } from "@/lib/pricing";
-import { cn, isRestaurantOpenNow } from "@/lib/utils";
-import type { Restaurant, DeliveryArea, PaymentMethod, OrderItemPayload } from "@/types/api";
+import { cn, formatPrice } from "@/lib/utils";
+import { useRestaurantStatus } from "@/components/restaurant/restaurant-status-provider";
+import type {
+  Restaurant,
+  DeliveryArea,
+  PaymentMethod,
+  OrderItemPayload,
+  OrderRejection,
+} from "@/types/api";
 
 interface CheckoutFormProps {
   restaurant: Restaurant;
@@ -33,6 +40,8 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
   const setOrderType = useCartStore((s) => s.setOrderType);
   const setDeliveryAreaId = useCartStore((s) => s.setDeliveryAreaId);
   const clearCart = useCartStore((s) => s.clearCart);
+  const applyReprice = useCartStore((s) => s.applyReprice);
+  const removeItem = useCartStore((s) => s.removeItem);
   const subtotal = useCartSubtotal();
 
   const [customerName, setCustomerName] = useState("");
@@ -56,7 +65,7 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
   const deliveryFee = getDeliveryFee(orderType, deliveryAreaId, deliveryAreas, restaurant.deliveryFee);
   const minimumOrder = getMinimumOrder(orderType, deliveryAreaId, deliveryAreas, restaurant.minimumOrder);
   const total = subtotal + deliveryFee;
-  const isOpen = isRestaurantOpenNow(restaurant.isOpen, restaurant.operatingHours);
+  const { isOpen } = useRestaurantStatus();
 
   const errors = {
     closed: !isOpen,
@@ -71,8 +80,8 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
   };
   const isValid = Object.values(errors).every((hasError) => !hasError);
 
-  function buildOrderItems(): OrderItemPayload[] {
-    return items.map((item) => ({
+  function buildOrderItems(lines: CartItem[]): OrderItemPayload[] {
+    return lines.map((item) => ({
       menuItemId: item.menuItemId,
       quantity: item.quantity,
       unitPrice: item.finalPrice,
@@ -89,6 +98,29 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
     }));
   }
 
+  /**
+   * The server is the price authority, so a 409 means the cart no longer
+   * describes something orderable. Repair what we can locally and let the
+   * customer retry rather than dead-ending them.
+   */
+  function handleRejection(rejection: OrderRejection | undefined, fallback: string) {
+    if (rejection?.code === "ITEMS_UNAVAILABLE" && rejection.problems?.length) {
+      const staleVariantIds = new Set(rejection.problems.map((p) => p.variantId));
+      for (const line of items) {
+        if (staleVariantIds.has(line.variantId)) removeItem(line.cartItemId);
+      }
+      toast.warning("Some items are no longer available and were removed from your cart.");
+      return;
+    }
+
+    if (rejection?.code === "BELOW_MINIMUM" && rejection.context) {
+      toast.error(`Minimum order is ${formatPrice(rejection.context.minimumOrder)}`);
+      return;
+    }
+
+    toast.error(rejection?.message ?? fallback);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
@@ -100,6 +132,25 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
 
     setIsSubmitting(true);
     try {
+      // Prices may have moved while this page sat open. Correct the cart first;
+      // if the menu can't be fetched, submit anyway — the server re-prices.
+      try {
+        const changes = applyReprice(await getMenu());
+        if (changes.some((c) => c.type === "removed")) {
+          toast.warning("Some items are no longer available and were removed from your cart.");
+          setIsSubmitting(false);
+          return;
+        }
+        if (changes.length > 0) toast.info("Prices were updated before placing your order.");
+      } catch {
+        // Non-fatal: the server is authoritative on price.
+      }
+
+      // Read the store directly: `items`/`subtotal` above are render-scoped
+      // snapshots that predate the reprice we just applied.
+      const freshItems = useCartStore.getState().items;
+      const freshSubtotal = freshItems.reduce((sum, i) => sum + i.itemTotal, 0);
+
       const result = await createOrder({
         restaurantId: restaurant.id,
         customerName: customerName.trim(),
@@ -109,16 +160,25 @@ export function CheckoutForm({ restaurant, deliveryAreas }: CheckoutFormProps) {
         paymentMethod: paymentMethod!,
         specialNotes: specialNotes.trim() || undefined,
         deliveryAreaId: orderType === "DELIVERY" ? deliveryAreaId! : undefined,
-        subtotal,
+        subtotal: freshSubtotal,
         deliveryFee: orderType === "DELIVERY" ? deliveryFee : 0,
-        total,
-        items: buildOrderItems(),
+        total: freshSubtotal + (orderType === "DELIVERY" ? deliveryFee : 0),
+        items: buildOrderItems(freshItems),
       });
+
+      if (result.pricing?.repriced) {
+        toast.info(`Final total: ${formatPrice(result.pricing.total)}`);
+      }
 
       setOrderPlaced(true);
       clearCart();
       router.push(`/orders/${result.orderId}`);
     } catch (err) {
+      if (err instanceof ApiError && err.status === 409) {
+        handleRejection(err.payload as OrderRejection | undefined, err.message);
+        setIsSubmitting(false);
+        return;
+      }
       const message = err instanceof ApiError ? err.message : "Could not place your order. Please try again.";
       toast.error(message);
       setIsSubmitting(false);

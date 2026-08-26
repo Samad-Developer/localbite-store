@@ -1,12 +1,9 @@
 import type { StateCreator } from "zustand";
-import type { OrderType } from "@/types/api";
+import type { MenuResponse, OrderType } from "@/types/api";
+import { calculateItemTotal } from "@/lib/pricing";
+import { repriceCart, type CartChange } from "@/lib/cart-reprice";
 import type { CartItem, NewCartItem } from "../types";
 import type { CartUISlice } from "./cart-ui-slice";
-
-function calculateItemTotal(item: NewCartItem): number {
-  const addonsTotal = item.selectedAddons.reduce((sum, a) => sum + a.price, 0);
-  return (item.finalPrice + addonsTotal) * item.quantity;
-}
 
 function isSameLine(a: NewCartItem, b: CartItem): boolean {
   if (a.menuItemId !== b.menuItemId) return false;
@@ -25,6 +22,7 @@ export interface CartDataSlice {
   removeItem: (cartItemId: string) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   clearCart: () => void;
+  applyReprice: (menu: MenuResponse) => CartChange[];
   setOrderType: (type: OrderType) => void;
   setDeliveryAreaId: (id: string | null) => void;
 }
@@ -48,7 +46,7 @@ export const createCartDataSlice: StateCreator <
     const cartItem: CartItem = {
       ...newItem,
       cartItemId: crypto.randomUUID(),
-      itemTotal: calculateItemTotal(newItem),
+      itemTotal: calculateItemTotal(newItem.finalPrice, newItem.selectedAddons, newItem.quantity),
     };
     set((state) => ({ items: [...state.items, cartItem] }));
   },
@@ -65,13 +63,19 @@ export const createCartDataSlice: StateCreator <
     set((state) => ({
       items: state.items.map((i) =>
         i.cartItemId === cartItemId
-          ? { ...i, quantity, itemTotal: calculateItemTotal({ ...i, quantity }) }
+          ? { ...i, quantity, itemTotal: calculateItemTotal(i.finalPrice, i.selectedAddons, quantity) }
           : i
       ),
     }));
   },
 
   clearCart: () => set({ items: [] }),
+
+  applyReprice: (menu) => {
+    const { items, changes, changed } = repriceCart(get().items, menu);
+    if (changed) set({ items });
+    return changes;
+  },
 
   setOrderType: (type) =>
     set((state) => ({

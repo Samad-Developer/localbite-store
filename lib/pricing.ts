@@ -1,5 +1,12 @@
-import type { Variant, AddonGroup } from "@/types/api";
-import type { DeliveryArea, OrderType } from "@/types/api";
+import type {
+  Variant,
+  AddonGroup,
+  DeliveryArea,
+  OrderType,
+  Restaurant,
+  PaymentMethod,
+} from "@/types/api";
+import type { CartItem } from "@/store/types";
 
 export function getSelectedAddonDetails(
   variant: Variant,
@@ -95,11 +102,9 @@ export function getMinimumOrder(
 ): number {
   if (orderType !== "DELIVERY") return 0;
   const area = deliveryAreas.find((a) => a.id === deliveryAreaId);
-  return area ? area.minimumOrder : fallbackMinimum;
+  return area?.minimumOrder ?? fallbackMinimum;
 }
 
-import type { Restaurant, PaymentMethod } from "@/types/api";
-import type { CartItem } from "@/store/types";
 
 export function getAvailablePaymentMethods(restaurant: Restaurant): PaymentMethod[] {
   return [
@@ -139,4 +144,13 @@ export function getCartItemDiscount(item: CartItem): number {
 
 export function getCartTotalDiscount(items: CartItem[]): number {
   return items.reduce((sum, item) => sum + getCartItemDiscount(item), 0);
+}
+
+export function calculateItemTotal(
+  finalPrice: number,
+  selectedAddons: { price: number }[],
+  quantity: number
+): number {
+  const addonsTotal = selectedAddons.reduce((sum, a) => sum + a.price, 0);
+  return (finalPrice + addonsTotal) * quantity;
 }

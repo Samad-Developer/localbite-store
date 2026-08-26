@@ -5,6 +5,8 @@ const envSchema = z.object({
   NEXT_PUBLIC_RESTAURANT_ID: z.string().min(1),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
+  /** IANA zone the operating hours are expressed in. Keeps server and client in agreement. */
+  NEXT_PUBLIC_RESTAURANT_TIMEZONE: z.string().min(1).default("Asia/Karachi"),
 });
 
 const parsed = envSchema.safeParse({
@@ -12,6 +14,7 @@ const parsed = envSchema.safeParse({
   NEXT_PUBLIC_RESTAURANT_ID: process.env.NEXT_PUBLIC_RESTAURANT_ID,
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_RESTAURANT_TIMEZONE: process.env.NEXT_PUBLIC_RESTAURANT_TIMEZONE,
 });
 
 if (!parsed.success) {

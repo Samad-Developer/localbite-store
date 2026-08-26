@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ShoppingCart, ArrowRight } from "lucide-react";
 import {
@@ -11,10 +10,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { useCartStore, useCartSubtotal, useCartTotalItems } from "@/store/cart-store";
+import { useCartHasHydrated, useCartStore, useCartSubtotal, useCartTotalItems } from "@/store/cart-store";
 import { CartLineItem } from "./cart-line-item";
 import { OrderTypeSelector } from "./order-type-selector";
 import { formatPrice } from "@/lib/utils";
+import { useIsRestaurantOpen } from "@/components/restaurant/restaurant-status-provider";
 import { getDeliveryFee, getMinimumOrder, getCartTotalDiscount } from "@/lib/pricing";
 import type { Restaurant, DeliveryArea } from "@/types/api";
 
@@ -30,8 +30,7 @@ export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
  const openCart = useCartStore((s) => s.openCart);
  const closeCart = useCartStore((s) => s.closeCart);
 
-  const [hasHydrated, setHasHydrated] = useState(false);
-  useEffect(() => setHasHydrated(true), []);
+  const hasHydrated = useCartHasHydrated();
 
   const items = useCartStore((s) => s.items);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
@@ -53,7 +52,9 @@ export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
 
   const belowMinimum = orderType === "DELIVERY" && minimumOrder > 0 && subtotal < minimumOrder;
   const needsDeliveryArea = orderType === "DELIVERY" && !deliveryAreaId;
-  const canCheckout = items.length > 0 && orderType !== null && !belowMinimum && !needsDeliveryArea;
+  const isRestaurantOpen = useIsRestaurantOpen();
+  const canCheckout =
+    items.length > 0 && orderType !== null && !belowMinimum && !needsDeliveryArea && isRestaurantOpen;
 
   return (
     <Sheet open={isOpen} onOpenChange={(open) => (open ? openCart() : closeCart())}>
@@ -157,6 +158,11 @@ export function CartWidget({ restaurant, deliveryAreas }: CartWidgetProps) {
               {needsDeliveryArea && <p className="text-xs text-red-500">Please select a delivery area</p>}
               {orderType === null && (
                 <p className="text-xs text-red-500">Please select dine-in, takeaway, or delivery</p>
+              )}
+              {!isRestaurantOpen && (
+                <p className="text-xs text-red-500">
+                  Currently closed &mdash; you can&apos;t check out right now
+                </p>
               )}
 
               <Button

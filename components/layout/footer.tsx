@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { ArrowUpRight, Bike, Clock, MapPin, Phone, Timer, Wallet } from "lucide-react";
 import type { OperatingHour, Restaurant } from "@/types/api";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, formatTime, getRestaurantDayIndex } from "@/lib/utils";
+import { OpenStatusPill } from "@/components/restaurant/open-status-pill";
 
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -9,18 +10,6 @@ const CREDIT = {
   name: "Samad",
   url: "https://samad-site.vercel.app/",
 };
-
-function todayIndex() {
-  return (new Date().getDay() + 6) % 7;
-}
-
-function formatTime(value: string) {
-  const [h, m] = value.split(":").map(Number);
-  if (Number.isNaN(h)) return value;
-  const suffix = h >= 12 ? "PM" : "AM";
-  const hour = h % 12 === 0 ? 12 : h % 12;
-  return m ? `${hour}:${String(m).padStart(2, "0")} ${suffix}` : `${hour} ${suffix}`;
-}
 
 export function Footer({ restaurant }: { restaurant: Restaurant }) {
   const services = [
@@ -38,7 +27,7 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
   const hours: OperatingHour[] = [...(restaurant.operatingHours ?? [])].sort(
     (a, b) => a.day - b.day,
   );
-  const today = todayIndex();
+  const today = getRestaurantDayIndex();
 
   return (
     <footer className="mt-12 border-t border-neutral-200 bg-white text-neutral-600">
@@ -69,14 +58,7 @@ export function Footer({ restaurant }: { restaurant: Restaurant }) {
               </div>
             </div>
 
-            <span className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold text-neutral-700">
-              <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  restaurant.isOpen ? "bg-emerald-500" : "bg-red-500"
-                }`}
-              />
-              {restaurant.isOpen ? "Open now" : "Currently closed"}
-            </span>
+            <OpenStatusPill />
 
             {restaurant.description && (
               <p className="mt-4 text-sm leading-relaxed text-neutral-600">
