@@ -194,7 +194,7 @@ export function MenuBrowser({ categories, restaurantLogo }: MenuBrowserProps) {
               </div>
 
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                {cat.menuItems.map((item) => (
+                {cat.menuItems.filter((item) => !item.isBestseller).map((item) => (
                   <ItemCard
                     key={item.id}
                     item={item}

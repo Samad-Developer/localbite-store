@@ -22,6 +22,7 @@ export const useCartStore = create<CartStore>()(
         orderType: state.orderType,
         deliveryAreaId: state.deliveryAreaId,
       }),
+      
     }
   )
 );
